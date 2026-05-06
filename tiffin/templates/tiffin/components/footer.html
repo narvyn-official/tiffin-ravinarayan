@@ -1,0 +1,35 @@
+<footer class="footer" id="contact">
+  <div class="container footer-grid">
+    <div>
+      <div class="footer-brand">🍱 {{ SITE.business_name }}</div>
+      <p class="muted">{{ SITE.tagline }}</p>
+    </div>
+    <div>
+      <h4>Contact</h4>
+      <ul class="plain">
+        <li><a href="tel:{{ SITE.phone }}">📞 {{ SITE.phone }}</a></li>
+        <li><a href="{{ WHATSAPP_URL }}" target="_blank" rel="noopener">💬 WhatsApp</a></li>
+        <li>✉️ {{ SITE.email }}</li>
+        <li>📍 {{ SITE.address }}</li>
+        <li>🕒 {{ SITE.hours }}</li>
+      </ul>
+    </div>
+    <div>
+      <h4>Delivery Areas</h4>
+      <ul class="plain chips">
+        {% for a in AREAS %}<li class="chip">{{ a.name }}</li>{% endfor %}
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>© {% now "Y" %} {{ SITE.business_name }}. All rights reserved.</span>
+    {% if request.user.is_authenticated and request.user.is_staff %}
+      &nbsp;·&nbsp;
+      <form method="post" action="{% url 'admin_logout' %}" style="display:inline">{% csrf_token %}
+        <button type="submit" class="btn-link footer-link-btn">Sign out</button>
+      </form>
+    {% else %}
+      &nbsp;·&nbsp; <a href="{% url 'admin_login' %}">Staff login</a>
+    {% endif %}
+  </div>
+</footer>

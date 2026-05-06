@@ -1,0 +1,54 @@
+{% load static asset_tags %}
+{% url 'home' as home_url %}
+{% url 'menu' as menu_url %}
+{% url 'order' as order_url %}
+
+<!-- Slim utility bar (hours + trust signals) -->
+<div class="topbar" aria-label="Business hours and trust signals">
+  <div class="topbar-inner">
+    <span class="topbar-item"><strong>{{ SITE.hours }}</strong></span>
+    <span class="topbar-dot" aria-hidden="true">·</span>
+    <span class="topbar-item">🌿 FSSAI compliant kitchen</span>
+    <span class="topbar-dot" aria-hidden="true">·</span>
+    <span class="topbar-item">🚚 Free delivery in listed areas</span>
+    <span class="topbar-spacer"></span>
+    <a class="topbar-link" href="{{ WHATSAPP_URL }}" target="_blank" rel="noopener">💬 Chat on WhatsApp</a>
+  </div>
+</div>
+
+<header class="nav" data-nav>
+  <div class="nav-inner">
+    <a href="{{ home_url }}" class="brand" aria-label="{{ SITE.business_name }} — home">
+      <img src="{% asset 'img/logo.png' %}" alt="{{ SITE.business_name }}" class="brand-logo">
+    </a>
+
+    <button class="nav-toggle" aria-label="Open menu" aria-expanded="false" aria-controls="primary-nav" data-nav-toggle>
+      <span></span><span></span><span></span>
+    </button>
+
+    <div class="nav-panel" id="primary-nav" data-nav-panel>
+      <button class="nav-drawer-close" aria-label="Close menu" data-nav-close>×</button>
+
+      <nav class="nav-links" aria-label="Primary">
+        <a href="{{ home_url }}" class="nav-link {% if request.path == home_url %}is-active{% endif %}">Home</a>
+        <a href="{{ menu_url }}" class="nav-link {% if request.path == menu_url %}is-active{% endif %}">Plans</a>
+        <a href="{{ home_url }}#today" class="nav-link">Today's Menu</a>
+        <a href="{{ home_url }}#why" class="nav-link">Why Us</a>
+        <a href="{{ home_url }}#contact" class="nav-link">Contact</a>
+      </nav>
+
+      <div class="nav-actions">
+        <a href="tel:{{ SITE.phone }}" class="nav-phone" aria-label="Call {{ SITE.phone }}">
+          <span class="nav-phone-icon" aria-hidden="true">📞</span>
+          <span class="nav-phone-text">{{ SITE.phone }}</span>
+        </a>
+        <a href="{{ order_url }}" class="btn btn-primary nav-order-btn">Order Now</a>
+        {% if request.user.is_authenticated and request.user.is_staff %}
+          <a href="{% url 'admin_orders' %}" class="btn btn-ghost btn-sm nav-admin-btn">Admin</a>
+        {% endif %}
+      </div>
+    </div>
+
+    <div class="nav-backdrop" data-nav-backdrop aria-hidden="true"></div>
+  </div>
+</header>

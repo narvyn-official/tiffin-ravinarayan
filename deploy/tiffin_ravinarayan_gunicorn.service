@@ -1,0 +1,21 @@
+[Unit]
+Description=Gunicorn daemon for Ravinarayan Tiffin
+After=network.target
+
+[Service]
+User=root
+Group=www-data
+WorkingDirectory=/var/www/tiffin_ravinarayan
+EnvironmentFile=/var/www/tiffin_ravinarayan/.env
+ExecStart=/var/www/tiffin_ravinarayan/.venv/bin/gunicorn \
+  --access-logfile - \
+  --error-logfile - \
+  --workers 3 \
+  --timeout 60 \
+  --bind unix:/var/www/tiffin_ravinarayan/tiffin.sock \
+  tiffin_project.wsgi:application
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

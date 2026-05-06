@@ -1,0 +1,21 @@
+{% load static %}
+{% url 'order' as order_url %}
+<article class="plan-card{% if plan.badge %} has-badge{% endif %}">
+  <div class="plan-image">
+    <img src="{% static 'img/' %}{{ plan.image_path }}" alt="{{ plan.name }}" loading="lazy"
+         onerror="this.parentElement.classList.add('no-image'); this.remove();">
+  </div>
+  {% if plan.badge %}<span class="plan-badge">{{ plan.badge }}</span>{% endif %}
+  <div class="plan-body">
+    <h3 class="plan-name">{{ plan.name }}</h3>
+    <p class="plan-tagline">{{ plan.tagline }}</p>
+    <div class="plan-price">
+      <span class="price-amount">₹{{ plan.price }}</span>
+      <span class="price-unit">{{ plan.unit }}</span>
+    </div>
+    <ul class="plan-items">
+      {% for item in plan.items_list %}<li>✓ {{ item }}</li>{% endfor %}
+    </ul>
+    <a href="{{ order_url }}?plan={{ plan.slug }}" class="btn btn-primary plan-cta">Order This</a>
+  </div>
+</article>

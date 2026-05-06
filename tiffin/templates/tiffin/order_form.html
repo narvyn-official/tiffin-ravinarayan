@@ -1,0 +1,306 @@
+{% extends "tiffin/base.html" %}
+{% block title %}Place an Order — {{ SITE.business_name }}{% endblock %}
+
+{% block content %}
+<section class="section section-page-head">
+  <div class="container">
+    <h1>Place Your Order</h1>
+    <p class="muted">Pick a plan, fill your details, add extras, and confirm on WhatsApp. Takes less than a minute.</p>
+  </div>
+</section>
+
+<section class="section">
+  <form method="post" novalidate id="order-form" class="container order-grid"
+        data-order-form
+        data-pickup-enabled="{% if SITE.pickup_enabled %}1{% else %}0{% endif %}"
+        data-pickup-address="{{ SITE.address|escape }}"
+        data-pickup-hours="{{ SITE.hours|escape }}"
+        data-kitchen-lat="{{ SITE.delivery_center_lat|default_if_none:'' }}"
+        data-kitchen-lng="{{ SITE.delivery_center_lng|default_if_none:'' }}"
+        data-delivery-radius-km="{{ SITE.delivery_radius_km|default_if_none:'0' }}"
+        data-business-name="{{ SITE.short_name|escape }}">
+    {% csrf_token %}
+
+    <div class="order-main">
+
+      <div id="form-alert" class="msg msg-error" role="alert" hidden></div>
+      {% if form.non_field_errors %}
+        <div class="msg msg-error" role="alert">{{ form.non_field_errors|join:" " }}</div>
+      {% endif %}
+
+      <!-- Step 1: Plan -->
+      <fieldset class="step-card">
+        <legend><span class="step-num">1</span> Choose your plan</legend>
+        {% if form.plan.errors %}<div class="field-error">{{ form.plan.errors|join:" " }}</div>{% endif %}
+        <input type="hidden" name="{{ form.plan.name }}" id="{{ form.plan.id_for_label }}" value="{{ form.plan.value|default:'' }}">
+        <div class="plan-picker">
+          {% for plan in plans %}
+            <label class="plan-pick" data-plan-id="{{ plan.id }}" data-plan-name="{{ plan.name|escape }}" data-plan-price="{{ plan.price }}" data-plan-unit="{{ plan.unit|escape }}">
+              <input type="radio" name="plan_pick" value="{{ plan.id }}" {% if form.plan.value|stringformat:"s" == plan.id|stringformat:"s" %}checked{% endif %}>
+              <span class="plan-pick-inner">
+                {% if plan.badge %}<span class="plan-badge">{{ plan.badge }}</span>{% endif %}
+                <span class="plan-pick-name">{{ plan.name }}</span>
+                <span class="plan-pick-tag muted">{{ plan.tagline }}</span>
+                <span class="plan-pick-price">₹{{ plan.price }} <span class="muted small">{{ plan.unit }}</span></span>
+                <span class="plan-pick-items muted small">{{ plan.items_list|join:" · " }}</span>
+              </span>
+            </label>
+          {% endfor %}
+        </div>
+      </fieldset>
+
+      <!-- Step 2: Delivery or pickup + your details -->
+      <fieldset class="step-card">
+        <legend><span class="step-num">2</span> Delivery or pickup</legend>
+
+        {% if SITE.pickup_enabled %}
+        <div class="method-toggle" role="radiogroup" aria-label="Delivery method">
+          <label class="method-option">
+            <input type="radio" name="delivery_method" value="delivery" {% if not form.delivery_method.value or form.delivery_method.value == "delivery" %}checked{% endif %}>
+            <span class="method-card">
+              <span class="method-icon" aria-hidden="true">🚚</span>
+              <span class="method-title">Home delivery</span>
+              <span class="method-desc muted small">We'll deliver to your address</span>
+            </span>
+          </label>
+          <label class="method-option">
+            <input type="radio" name="delivery_method" value="pickup" {% if form.delivery_method.value == "pickup" %}checked{% endif %}>
+            <span class="method-card">
+              <span class="method-icon" aria-hidden="true">🏠</span>
+              <span class="method-title">Pick up from counter</span>
+              <span class="method-desc muted small">Collect from our kitchen</span>
+            </span>
+          </label>
+        </div>
+        {% else %}
+          <input type="hidden" name="delivery_method" value="delivery">
+        {% endif %}
+
+        {% if form.delivery_method.errors %}<div class="field-error">{{ form.delivery_method.errors|join:" " }}</div>{% endif %}
+
+        <!-- Pickup info (shown when pickup selected) -->
+        <div id="pickup-info" class="pickup-info" hidden>
+          <div class="pickup-info-icon">🏠</div>
+          <div>
+            <strong>Pick up from:</strong>
+            <div>{{ SITE.address }}</div>
+            <div class="muted small">{{ SITE.hours }}</div>
+          </div>
+        </div>
+
+        <div class="grid-2">
+          <div class="form-row">
+            <label for="{{ form.full_name.id_for_label }}">Full name <span class="req">*</span></label>
+            {{ form.full_name }}
+            {% if form.full_name.errors %}<div class="field-error">{{ form.full_name.errors|join:" " }}</div>{% endif %}
+          </div>
+          <div class="form-row">
+            <label for="{{ form.phone.id_for_label }}">Phone number <span class="req">*</span></label>
+            {{ form.phone }}
+            {% if form.phone.errors %}<div class="field-error">{{ form.phone.errors|join:" " }}</div>{% endif %}
+          </div>
+        </div>
+
+        <!-- Delivery-only fields (hidden for pickup) -->
+        <div id="delivery-fields">
+          <div class="form-row">
+            <label>Delivery location <span class="req delivery-only">*</span></label>
+
+            <button type="button" class="loc-trigger" data-loc-open>
+              <span class="loc-trigger-icon" aria-hidden="true">📍</span>
+
+              <span class="loc-trigger-text">
+                <span class="loc-trigger-empty" data-loc-empty>
+                  <strong>Set your delivery location</strong>
+                  <span class="muted small">Search, GPS, or pick on map</span>
+                </span>
+                <span class="loc-trigger-set" data-loc-set hidden>
+                  <strong data-loc-summary></strong>
+                  <span class="muted small" data-loc-distance></span>
+                </span>
+              </span>
+
+              <span class="loc-trigger-chevron" aria-hidden="true">›</span>
+            </button>
+
+            <input type="hidden" name="{{ form.location_url.name }}"
+                   id="{{ form.location_url.id_for_label }}"
+                   value="{{ form.location_url.value|default:'' }}">
+
+            {% if form.location_url.errors %}<div class="field-error">{{ form.location_url.errors|join:" " }}</div>{% endif %}
+          </div>
+
+          <div class="form-row">
+            <label for="{{ form.address.id_for_label }}">Flat / building / landmark <span class="req delivery-only">*</span></label>
+            {{ form.address }}
+            <small class="hint">The pin gives us the area; this helps us find your exact door — e.g. "B-204, Lakeview Apt, near Tata Showroom".</small>
+            {% if form.address.errors %}<div class="field-error">{{ form.address.errors|join:" " }}</div>{% endif %}
+          </div>
+
+          <div class="form-row">
+            <label for="{{ form.area.id_for_label }}">Delivery area <span class="req delivery-only">*</span></label>
+            {{ form.area }}
+            <small class="hint" data-area-auto hidden>✓ Auto-selected from your pin.</small>
+            {% if form.area.errors %}<div class="field-error">{{ form.area.errors|join:" " }}</div>{% endif %}
+          </div>
+        </div>
+      </fieldset>
+
+      <!-- Step 3: Quantity & timing -->
+      <fieldset class="step-card">
+        <legend><span class="step-num">3</span> Quantity & timing</legend>
+        <div class="grid-3">
+          <div class="form-row">
+            <label for="{{ form.quantity.id_for_label }}">Quantity <span class="req">*</span></label>
+            {{ form.quantity }}
+            {% if form.quantity.errors %}<div class="field-error">{{ form.quantity.errors|join:" " }}</div>{% endif %}
+          </div>
+          <div class="form-row">
+            <label for="{{ form.meal_time.id_for_label }}">Meal time <span class="req">*</span></label>
+            {{ form.meal_time }}
+            <small id="multiplier-hint" class="hint" hidden>Lunch + Dinner doubles the meal count.</small>
+            {% if form.meal_time.errors %}<div class="field-error">{{ form.meal_time.errors|join:" " }}</div>{% endif %}
+          </div>
+          <div class="form-row">
+            <label for="{{ form.delivery_date.id_for_label }}">Date <span class="req">*</span></label>
+            {{ form.delivery_date }}
+            {% if form.delivery_date.errors %}<div class="field-error">{{ form.delivery_date.errors|join:" " }}</div>{% endif %}
+          </div>
+        </div>
+        <div class="form-row">
+          <label for="{{ form.notes.id_for_label }}">Special notes <span class="muted">(optional)</span></label>
+          {{ form.notes }}
+          <small class="hint">e.g. less spicy, extra roti, no onion</small>
+          {% if form.notes.errors %}<div class="field-error">{{ form.notes.errors|join:" " }}</div>{% endif %}
+        </div>
+      </fieldset>
+
+      <!-- Step 4: Add-ons (optional) -->
+      <fieldset class="step-card">
+        <legend><span class="step-num">4</span> Add extras <span class="muted small">(optional)</span></legend>
+        {% if addons %}
+        <div class="addon-grid">
+          {% for a in addons %}
+            <div class="addon-card" data-addon-id="{{ a.id }}" data-addon-price="{{ a.price }}" data-addon-name="{{ a.name|escape }}">
+              <div class="addon-info">
+                <div class="addon-icon" aria-hidden="true">{{ a.icon|default:"🥘" }}</div>
+                <div>
+                  <div class="addon-name">{{ a.name }}</div>
+                  <div class="addon-desc muted small">{{ a.description }}</div>
+                  <div class="addon-price"><strong>₹{{ a.price }}</strong> <span class="muted small">{{ a.unit }}</span></div>
+                </div>
+              </div>
+              <div class="addon-qty" role="group" aria-label="Quantity for {{ a.name }}">
+                <button type="button" class="qty-btn" data-qty-step="-1" aria-label="Decrease">−</button>
+                <input type="number" name="addon_qty_{{ a.id }}" value="0" min="0" max="100" class="qty-input qty-num" inputmode="numeric" aria-label="Quantity">
+                <button type="button" class="qty-btn" data-qty-step="1" aria-label="Increase">+</button>
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+        {% else %}
+        <p class="muted">No add-ons available right now.</p>
+        {% endif %}
+      </fieldset>
+    </div>
+
+    <!-- Sticky summary -->
+    <aside class="order-summary-sticky" aria-live="polite">
+      <div class="summary-card">
+        <h3>Order summary</h3>
+
+        <div class="sum-line"><span class="muted">Method</span><span data-sum-method>Home delivery</span></div>
+
+        <div class="sum-line sum-plan-row">
+          <span class="muted">Plan</span>
+          <span data-sum-plan>—</span>
+        </div>
+        <div class="sum-line sum-meals-row" hidden>
+          <span class="muted">Meals</span>
+          <span data-sum-meals>—</span>
+        </div>
+        <div class="sum-line">
+          <span class="muted">Plan total</span>
+          <span><strong data-sum-plan-total>₹0</strong></span>
+        </div>
+
+        <div class="sum-addons" data-sum-addons></div>
+
+        <div class="sum-line sum-divider">
+          <span class="muted">Add-ons total</span>
+          <span><strong data-sum-addons-total>₹0</strong></span>
+        </div>
+
+        <div class="sum-total">
+          <span>Total</span>
+          <span class="sum-total-amount">₹<span data-sum-total>0</span></span>
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-lg btn-block sum-submit" data-sum-submit>
+          Place Order →
+        </button>
+        <p id="missing-hint" class="missing-hint" hidden>
+          <span data-missing-count></span> required field<span data-missing-plural></span> to fill
+        </p>
+        <p class="muted small center" style="margin: 8px 0 0;">Next step opens WhatsApp with your order details. No payment now.</p>
+
+        <div class="summary-help">
+          <a href="{{ WHATSAPP_URL }}" target="_blank" rel="noopener" class="summary-help-link">Have a question? Ping us on WhatsApp →</a>
+        </div>
+      </div>
+    </aside>
+
+  </form>
+
+  <!-- Location picker modal (Leaflet + Nominatim, lazy-loaded) -->
+  <div class="loc-modal" data-loc-modal hidden role="dialog" aria-modal="true" aria-labelledby="loc-modal-title">
+    <div class="loc-modal-backdrop" data-loc-close></div>
+    <div class="loc-modal-panel" role="document">
+      <header class="loc-modal-head">
+        <h3 id="loc-modal-title">Set delivery location</h3>
+        <button type="button" class="loc-modal-close" data-loc-close aria-label="Close location picker">×</button>
+      </header>
+
+      <div class="loc-modal-search">
+        <div class="loc-search-wrap">
+          <span class="loc-search-icon" aria-hidden="true">🔍</span>
+          <input type="text" class="field loc-search-input" data-loc-search
+                 placeholder="Search for area, locality or address"
+                 autocomplete="off" autocapitalize="words" spellcheck="false">
+          <button type="button" class="loc-search-clear" data-loc-search-clear aria-label="Clear" hidden>×</button>
+          <div class="loc-search-results" data-loc-results hidden role="listbox"></div>
+        </div>
+        <button type="button" class="btn btn-ghost btn-sm loc-gps-btn" data-loc-gps>
+          📍 Use my current location
+        </button>
+      </div>
+
+      <div class="loc-map-wrap">
+        <div id="loc-map" class="loc-map" aria-label="Map for selecting delivery location"></div>
+        <div class="loc-status" data-loc-status>Drag the pin or search to set your location</div>
+      </div>
+
+      <footer class="loc-modal-foot">
+        <div class="loc-selected">
+          <span class="muted small">Selected location</span>
+          <strong data-loc-address>—</strong>
+        </div>
+        <button type="button" class="btn btn-primary btn-block loc-confirm" data-loc-confirm disabled>
+          Confirm location
+        </button>
+      </footer>
+    </div>
+  </div>
+
+  <!-- Mobile-only fixed bottom CTA: always-visible total + Place Order -->
+  <div class="mobile-cta-bar" data-mobile-cta>
+    <div class="mobile-cta-info">
+      <span class="mobile-cta-label">Total</span>
+      <span class="mobile-cta-total">₹<span data-sum-total-mobile>0</span></span>
+    </div>
+    <button type="submit" form="order-form" class="btn btn-primary mobile-cta-btn">
+      Place Order →
+    </button>
+  </div>
+</section>
+{% endblock %}

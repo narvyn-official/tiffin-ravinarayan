@@ -1,0 +1,195 @@
+{% extends "tiffin/base.html" %}
+{% load static %}
+
+{% block content %}
+{% url 'order' as order_url %}
+{% url 'menu' as menu_url %}
+
+<!-- HERO (image as full background, content on left empty area) -->
+<section class="hero" style="background-image: url('{% static 'img/hero.png' %}');">
+  <div class="container hero-inner">
+    <div class="hero-text">
+      <span class="eyebrow">🍃 Cooked fresh today</span>
+      <h1>Fresh Homemade Tiffin <span class="accent">Delivered Daily</span></h1>
+      <p class="lead">Affordable, hygienic, and freshly prepared meals for offices, PGs, warehouses, students, and working professionals.</p>
+      <div class="hero-cta">
+        <a href="{{ order_url }}" class="btn btn-primary btn-lg">Order Now</a>
+        <a href="{{ WHATSAPP_URL }}" class="btn btn-whatsapp btn-lg" target="_blank" rel="noopener">💬 Order on WhatsApp</a>
+      </div>
+      <ul class="hero-trust">
+        <li>✅ FSSAI compliant</li>
+        <li>🚚 Free delivery in listed areas</li>
+        <li>⏱ Lunch by 1 PM</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- TODAY'S MENU -->
+<section class="section" id="today">
+  <div class="container">
+    <header class="section-head">
+      <h2>What's Cooking Today</h2>
+      <p class="muted">Fresh menu, rotated every day of the week. Today's spread, ready to order.</p>
+    </header>
+
+    <article class="today-card-v2">
+      <div class="today-photo">
+        <img src="{% static 'img/today-spread.png' %}" alt="Today's homestyle tiffin spread" loading="lazy"
+             onerror="this.parentElement.style.display='none';">
+        <span class="today-date">📅 {{ today_label }}</span>
+        <span class="today-fresh-tag">🌿 Cooked this morning</span>
+      </div>
+
+      <div class="today-meals">
+        <div class="meal-block">
+          <div class="meal-block-head">
+            <span class="meal-emoji" aria-hidden="true">☀️</span>
+            <div>
+              <h3>Lunch</h3>
+              <span class="meal-cutoff">Delivered by <strong>1:00 PM</strong></span>
+            </div>
+          </div>
+          {% if todays_lunch %}
+            <ul class="meal-items">
+              {% for item in todays_lunch.items_list %}<li>{{ item }}</li>{% endfor %}
+            </ul>
+            <a href="{% url 'order' %}?meal=lunch" class="btn btn-primary btn-block meal-cta">
+              Order Today's Lunch →
+            </a>
+          {% else %}
+            <p class="muted">Today's lunch menu hasn't been published yet.</p>
+          {% endif %}
+        </div>
+
+        <div class="meal-divider" aria-hidden="true"></div>
+
+        <div class="meal-block">
+          <div class="meal-block-head">
+            <span class="meal-emoji" aria-hidden="true">🌙</span>
+            <div>
+              <h3>Dinner</h3>
+              <span class="meal-cutoff">Delivered by <strong>8:30 PM</strong></span>
+            </div>
+          </div>
+          {% if todays_dinner %}
+            <ul class="meal-items">
+              {% for item in todays_dinner.items_list %}<li>{{ item }}</li>{% endfor %}
+            </ul>
+            <a href="{% url 'order' %}?meal=dinner" class="btn btn-ghost btn-block meal-cta">
+              Order Today's Dinner →
+            </a>
+          {% else %}
+            <p class="muted">Today's dinner menu hasn't been published yet.</p>
+          {% endif %}
+        </div>
+      </div>
+    </article>
+
+    <p class="today-foot muted center">
+      💡 Want both? Pick <strong>Lunch + Dinner</strong> on the order form — quantity doubles automatically.
+    </p>
+  </div>
+</section>
+
+<!-- PLANS -->
+<section class="section section-cream" id="plans">
+  <div class="container">
+    <header class="section-head">
+      <h2>Our Plans</h2>
+      <p class="muted">Two simple choices. Order daily, or save big with the monthly plan.</p>
+    </header>
+    <div class="plans-grid plans-2">
+      {% for plan in plans %}
+        {% include "tiffin/components/plan_card.html" with plan=plan %}
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="section" id="process">
+  <div class="container">
+    <header class="section-head">
+      <h2>From Our Kitchen to Your Doorstep</h2>
+      <p class="muted">Four steps. No fuss. Hot, fresh and on time.</p>
+    </header>
+    <div class="steps-grid">
+      <div class="step-tile">
+        <div class="step-img"><img src="{% static 'img/cooking.png' %}" alt="Cook preparing fresh meal" loading="lazy" onerror="this.parentElement.classList.add('no-image')"></div>
+        <div class="step-meta"><span class="step-badge">01</span><h3>Cooked Fresh</h3><p class="muted">Ingredients sourced daily, cooked the same morning in our home kitchen.</p></div>
+      </div>
+      <div class="step-tile">
+        <div class="step-img"><img src="{% static 'img/kitchen.png' %}" alt="Hygienic kitchen — gloves, masks, hairnets" loading="lazy" onerror="this.parentElement.classList.add('no-image')"></div>
+        <div class="step-meta"><span class="step-badge">02</span><h3>Packed Hygienically</h3><p class="muted">Sealed steel tiffins. Staff in gloves, masks and hairnets — FSSAI compliant.</p></div>
+      </div>
+      <div class="step-tile">
+        <div class="step-img"><img src="{% static 'img/delivery.png' %}" alt="Delivery to your door" loading="lazy" onerror="this.parentElement.classList.add('no-image')"></div>
+        <div class="step-meta"><span class="step-badge">03</span><h3>Delivered On Time</h3><p class="muted">Lunch by 1 PM, dinner by 8:30 PM. To your office, PG or home.</p></div>
+      </div>
+      <div class="step-tile">
+        <div class="step-img"><img src="{% static 'img/enjoy.png' %}" alt="Customer enjoying a tiffin meal" loading="lazy" onerror="this.parentElement.classList.add('no-image')"></div>
+        <div class="step-meta"><span class="step-badge">04</span><h3>Enjoy Ghar Ka Khaana</h3><p class="muted">Hot, balanced, homestyle taste — like maa ke haath ka khaana.</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- WHY US -->
+<section class="section section-cream" id="why">
+  <div class="container">
+    <header class="section-head">
+      <h2>Why Choose Us</h2>
+      <p class="muted">Real food. Real value. No nonsense.</p>
+    </header>
+    <div class="why-grid">
+      {% for w in why_choose_us %}
+        <div class="why-card">
+          <div class="why-icon" aria-hidden="true">{{ w.icon }}</div>
+          <h3>{{ w.title }}</h3>
+          <p>{{ w.text }}</p>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<!-- DELIVERY AREAS -->
+<section class="section" id="areas">
+  <div class="container">
+    <header class="section-head">
+      <h2>Delivery Areas</h2>
+      <p class="muted">We deliver across these neighbourhoods. Don't see yours? Call us — we expand often.</p>
+    </header>
+    <div class="areas-layout">
+      <div class="areas-image">
+        <img src="{% static 'img/areas-map.png' %}" alt="Delivery routes map" loading="lazy"
+             onerror="this.parentElement.style.display='none';">
+      </div>
+      <ul class="areas-grid">
+        {% for area in areas %}
+          <li class="area-pill">📍 {{ area.name }}</li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- CTA STRIP -->
+<section class="cta-strip">
+  <div class="container cta-inner">
+    <div class="cta-text">
+      <h2>Hungry already?</h2>
+      <p>Tap below — order in under a minute, no payment now.</p>
+      <div class="cta-actions">
+        <a href="{{ order_url }}" class="btn btn-primary btn-lg">Order Now</a>
+        <a href="{{ WHATSAPP_URL }}" class="btn btn-whatsapp btn-lg" target="_blank" rel="noopener">💬 WhatsApp Us</a>
+      </div>
+    </div>
+    <div class="cta-image" aria-hidden="true">
+      <img src="{% static 'img/whatsapp.png' %}" alt="" loading="lazy"
+           onerror="this.parentElement.style.display='none';">
+    </div>
+  </div>
+</section>
+{% endblock %}

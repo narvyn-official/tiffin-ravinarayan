@@ -1,0 +1,95 @@
+{% extends "tiffin/base.html" %}
+{% block title %}Order Received — {{ SITE.business_name }}{% endblock %}
+
+{% block content %}
+<section class="section">
+  <div class="container narrow">
+    <div class="success-card">
+      <div class="success-check" aria-hidden="true">✓</div>
+      <h1>Almost there!</h1>
+      <p class="lead">Tap the WhatsApp button below to send us your order. We'll confirm in minutes.</p>
+
+      <a href="{{ wa_confirm_url }}" target="_blank" rel="noopener" class="btn btn-whatsapp btn-lg btn-block big-wa-btn">
+        💬 Send Order on WhatsApp
+      </a>
+
+      <div class="order-summary">
+        <div class="summary-row">
+          <span class="label">Order ID</span>
+          <span class="value mono">{{ order.code }}</span>
+        </div>
+        <div class="summary-row">
+          <span class="label">Name</span>
+          <span class="value">{{ order.full_name }}</span>
+        </div>
+        <div class="summary-row">
+          <span class="label">Phone</span>
+          <span class="value">{{ order.phone }}</span>
+        </div>
+        <div class="summary-row">
+          <span class="label">Method</span>
+          <span class="value">{{ order.get_delivery_method_display }}</span>
+        </div>
+        <div class="summary-row">
+          <span class="label">Plan</span>
+          <span class="value">{{ order.plan_name }} × {{ order.quantity }}{% if order.meal_multiplier > 1 %} (Lunch + Dinner = {{ order.effective_meals }} meals){% endif %} <span class="muted small">(₹{{ order.plan_subtotal }})</span></span>
+        </div>
+        {% if order.addons %}
+        <div class="summary-row">
+          <span class="label">Add-ons</span>
+          <span class="value addons-list">
+            {% for a in order.addons %}<div>{{ a.name }} × {{ a.qty }} <span class="muted small">(₹{{ a.price }} each)</span></div>{% endfor %}
+          </span>
+        </div>
+        <div class="summary-row">
+          <span class="label">Add-ons total</span>
+          <span class="value">₹{{ order.addons_total }}</span>
+        </div>
+        {% endif %}
+        <div class="summary-row">
+          <span class="label">Meal</span>
+          <span class="value">{{ order.get_meal_time_display }}</span>
+        </div>
+        <div class="summary-row">
+          <span class="label">Date</span>
+          <span class="value">{{ order.delivery_date|date:"D, d M Y" }}</span>
+        </div>
+        {% if order.delivery_method == "pickup" %}
+        <div class="summary-row">
+          <span class="label">Pickup at</span>
+          <span class="value">{{ SITE.address }}<br><span class="muted small">{{ SITE.hours }}</span></span>
+        </div>
+        {% else %}
+        <div class="summary-row">
+          <span class="label">Address</span>
+          <span class="value">{{ order.address }}, {{ order.area }}</span>
+        </div>
+        {% if order.location_url %}
+        <div class="summary-row">
+          <span class="label">Map</span>
+          <span class="value"><a href="{{ order.location_url }}" target="_blank" rel="noopener">📍 View pinned location</a></span>
+        </div>
+        {% endif %}
+        {% endif %}
+        {% if order.notes %}
+        <div class="summary-row">
+          <span class="label">Notes</span>
+          <span class="value">{{ order.notes }}</span>
+        </div>
+        {% endif %}
+        <div class="summary-row total">
+          <span class="label">Total</span>
+          <span class="value">₹{{ order.total_price }}</span>
+        </div>
+      </div>
+
+      <div class="success-actions">
+        <a href="tel:{{ SITE.phone }}" class="btn btn-ghost btn-block">📞 Call {{ SITE.phone }}</a>
+        <a href="{% url 'home' %}" class="btn btn-link">← Back to home</a>
+      </div>
+
+      <p class="muted small center">Save your order ID — you'll need it if you contact us about this order.</p>
+    </div>
+  </div>
+</section>
+{% endblock %}

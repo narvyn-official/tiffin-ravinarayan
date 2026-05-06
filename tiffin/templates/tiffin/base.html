@@ -1,0 +1,42 @@
+{% load static asset_tags %}<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#1f7a3a" />
+  <meta name="description" content="{{ SITE.business_name }} — fresh homemade tiffin delivered daily. {{ SITE.tagline }}" />
+
+  <!-- Open Graph / social -->
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="{{ SITE.business_name }} — Fresh Homemade Tiffin" />
+  <meta property="og:description" content="{{ SITE.tagline }}" />
+  <meta property="og:image" content="{% static 'img/logo.png' %}" />
+
+  <title>{% block title %}{{ SITE.business_name }} — Fresh Homemade Tiffin{% endblock %}</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap">
+
+  <link rel="stylesheet" href="{% asset 'css/styles.css' %}" />
+  <link rel="icon" type="image/png" sizes="any" href="{% asset 'img/logo.png' %}">
+  <link rel="apple-touch-icon" href="{% asset 'img/logo.png' %}">
+</head>
+<body class="page-{{ request.resolver_match.url_name|default:'home' }}">
+  {% include "tiffin/components/navbar.html" %}
+
+  <main id="main">
+    {% if messages %}
+      <div class="messages">
+        {% for m in messages %}<div class="msg msg-{{ m.tags|default:'info' }}">{{ m }}</div>{% endfor %}
+      </div>
+    {% endif %}
+    {% block content %}{% endblock %}
+  </main>
+
+  {% include "tiffin/components/footer.html" %}
+  {% include "tiffin/components/whatsapp_button.html" %}
+
+  <script src="{% asset 'js/app.js' %}" defer></script>
+</body>
+</html>

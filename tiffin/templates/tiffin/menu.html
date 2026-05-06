@@ -1,0 +1,21 @@
+{% extends "tiffin/base.html" %}
+{% block title %}Tiffin Plans — {{ BUSINESS.name }}{% endblock %}
+
+{% block content %}
+<section class="section section-page-head">
+  <div class="container">
+    <h1>Our Tiffin Plans</h1>
+    <p class="muted">Simple, honest options. Tap a plan to start your order.</p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    <div class="plans-grid">
+      {% for plan in plans %}
+        {% include "tiffin/components/plan_card.html" with plan=plan %}
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endblock %}
