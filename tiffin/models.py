@@ -52,11 +52,11 @@ class SiteSettings(models.Model):
         help_text="International format, digits only — no '+' or spaces. e.g. 919876543210",
     )
     email = models.EmailField(default="orders@ravinarayan.example")
-    address = models.CharField(max_length=300, default="Shop 12, Market Road, Pune 411001")
+    address = models.CharField(max_length=300, default="Metcity, Bahadurgarh, Jhajjar district, Haryana 124507")
     # Split address pieces for proper schema.org PostalAddress + local SEO
-    city = models.CharField(max_length=80, default="Pune")
-    state = models.CharField(max_length=80, default="Maharashtra")
-    postal_code = models.CharField(max_length=12, default="411001")
+    city = models.CharField(max_length=80, default="Jhajjar")
+    state = models.CharField(max_length=80, default="Haryana")
+    postal_code = models.CharField(max_length=12, default="124507")
     country = models.CharField(max_length=80, default="India")
     country_code = models.CharField(max_length=2, default="IN", help_text="ISO 2-letter — e.g. IN, US.")
     hours = models.CharField(max_length=120, default="Mon – Sat, 10:00 AM – 9:00 PM")
@@ -73,15 +73,21 @@ class SiteSettings(models.Model):
     )
     seo_keywords = models.CharField(
         max_length=400, blank=True,
-        default="tiffin service, tiffin near me, homemade tiffin, lunch tiffin, monthly tiffin, PG tiffin, office lunch, ghar ka khana, veg tiffin, dabba service",
+        default=(
+            "tiffin service Jhajjar, tiffin in Metcity, tiffin in Yakubpur, "
+            "tiffin Bahadurgarh, tiffin Farrukhnagar, homemade tiffin Haryana, "
+            "monthly tiffin PG, lunch tiffin office, veg tiffin near me, "
+            "dabba service Jhajjar, tiffin near me, ghar ka khana"
+        ),
         help_text="Comma-separated keywords. Used in meta keywords + helps drive copy.",
     )
     site_description = models.CharField(
         max_length=320, blank=True,
         default=(
-            "Fresh, homemade veg tiffin service. Daily lunch & dinner at ₹70 per meal "
-            "or ₹3200 per month. Lunch by 1 PM, dinner by 8:30 PM. FSSAI compliant kitchen. "
-            "Order on WhatsApp or our website."
+            "Fresh homemade veg tiffin service in Jhajjar — Metcity, Yakubpur, "
+            "Bahadurgarh & Farrukhnagar. Daily lunch & dinner at ₹70 per meal or "
+            "₹3200 per month. Lunch by 1 PM, dinner by 8:30 PM. FSSAI compliant. "
+            "Order on WhatsApp."
         ),
         help_text="160-300 chars. Used as the site-wide default meta description.",
     )

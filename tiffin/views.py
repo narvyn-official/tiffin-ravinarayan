@@ -31,9 +31,10 @@ FAQS = [
     ),
     (
         "Do you deliver near me?",
-        "We deliver inside our active service zone. On the order page, tap 'Set delivery location', "
-        "search for your address or use GPS — the map will show whether you're inside our delivery "
-        "circle. If you're outside, you can still pick up from the counter."
+        "We currently deliver in Metcity, Yakubpur, Bahadurgarh and Farrukhnagar (Jhajjar district, "
+        "Haryana). On the order page, tap 'Set delivery location', search for your address or use "
+        "GPS — the map will show whether you're inside our delivery circle. If you're outside, you "
+        "can still pick up from the counter."
     ),
     (
         "Is the food vegetarian?",
