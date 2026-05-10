@@ -75,10 +75,20 @@ WHY_CHOOSE_US = [
 
 
 def _todays_menu():
+    """One query for both meals, cheaper than two filtered .first() calls."""
     dow = date.today().weekday()
-    lunch = DailyMenu.objects.filter(day_of_week=dow, meal_time=DailyMenu.MEAL_LUNCH, is_active=True).first()
-    dinner = DailyMenu.objects.filter(day_of_week=dow, meal_time=DailyMenu.MEAL_DINNER, is_active=True).first()
+    rows = list(DailyMenu.objects.filter(day_of_week=dow, is_active=True))
+    lunch = next((r for r in rows if r.meal_time == DailyMenu.MEAL_LUNCH), None)
+    dinner = next((r for r in rows if r.meal_time == DailyMenu.MEAL_DINNER), None)
     return lunch, dinner
+
+
+def _set_anonymous_cache(response, max_age=120):
+    """Allow shared/proxy caches to hold the response for a couple of minutes
+    on anonymous visits. Avoids serving cached navbar to logged-in staff."""
+    response["Cache-Control"] = f"public, max-age={max_age}, stale-while-revalidate=600"
+    response["Vary"] = "Cookie, Accept-Encoding"
+    return response
 
 
 # ---------- public pages ----------------------------------------------------
@@ -98,6 +108,8 @@ def home(request):
     if menu_payload:
         jsonld.append(menu_payload)
 
+    # Names of active areas, used in concise meta description.
+    area_names = ", ".join(a.name for a in areas[:3])
     ctx = {
         "plans": plans,
         "todays_lunch": lunch,
@@ -106,14 +118,24 @@ def home(request):
         "why_choose_us": WHY_CHOOSE_US,
         "areas": areas,
         "faqs": FAQS,
+        # ≤60 chars title — keyword + locale + brand
         "page_title": (
-            f"Tiffin Service in {site.city} — Fresh Homemade Veg Tiffin Delivery | {site.short_name}"
+            f"Tiffin Service in {site.city}"
+            f"{' — ' + area_names if area_names else ''} | {site.short_name}"
         ),
-        "page_description": site.site_description,
+        # ~150 chars meta description
+        "page_description": (
+            f"Fresh homemade veg tiffin in {site.city}"
+            f"{' (' + area_names + ')' if area_names else ''}. ₹70 per meal or ₹3200/month. "
+            f"Hot, hygienic, FSSAI compliant. Order on WhatsApp."
+        ),
         "jsonld_blobs": [seo.dump(j) for j in jsonld if j],
         "canonical_url": seo.canonical(request),
     }
-    return render(request, "tiffin/home.html", ctx)
+    response = render(request, "tiffin/home.html", ctx)
+    if not request.user.is_authenticated:
+        _set_anonymous_cache(response)
+    return response
 
 
 def menu(request):
@@ -127,17 +149,21 @@ def menu(request):
             ("Plans", request.build_absolute_uri(reverse("menu"))),
         ]),
     ]
-    return render(request, "tiffin/menu.html", {
+    response = render(request, "tiffin/menu.html", {
         "plans": plans,
-        "page_title": f"Tiffin Plans & Pricing — ₹70/meal · ₹3200/month | {site.short_name}",
+        # ≤60 chars
+        "page_title": f"Tiffin Plans — ₹70 / meal · ₹3200 / month | {site.short_name}",
+        # ~150 chars
         "page_description": (
-            f"Two simple tiffin plans from {site.business_name}: Daily Tiffin at ₹70 per meal "
-            f"and PG Monthly Plan at ₹3200 per month. Fresh, homemade vegetarian meals delivered "
-            f"in {site.city}."
+            f"Two simple tiffin plans: Daily Tiffin at ₹70 per meal and PG Monthly at "
+            f"₹3200/month. Fresh, homemade vegetarian meals — delivered in {site.city}."
         ),
         "jsonld_blobs": [seo.dump(j) for j in jsonld if j],
         "canonical_url": seo.canonical(request),
     })
+    if not request.user.is_authenticated:
+        _set_anonymous_cache(response)
+    return response
 
 
 # ---------- SEO endpoints --------------------------------------------------
