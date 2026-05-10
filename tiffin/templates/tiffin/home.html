@@ -6,12 +6,12 @@
 {% url 'menu' as menu_url %}
 
 <!-- HERO (image as full background, content on left empty area) -->
-<section class="hero" style="background-image: url('{% static 'img/hero.png' %}');">
+<section class="hero" style="background-image: url('{% static 'img/hero.webp' %}');">
   <div class="container hero-inner">
     <div class="hero-text">
       <span class="eyebrow">🍃 Cooked fresh today</span>
-      <h1>Fresh Homemade Tiffin <span class="accent">Delivered Daily</span></h1>
-      <p class="lead">Affordable, hygienic, and freshly prepared meals for offices, PGs, warehouses, students, and working professionals.</p>
+      <h1>Tiffin Service in {{ SITE.city }} — <span class="accent">Fresh Homemade Meals Delivered Daily</span></h1>
+      <p class="lead">Affordable, hygienic, freshly prepared veg tiffin for offices, PGs, warehouses, students and working professionals across {{ SITE.city }}. ₹70 per meal or ₹3200 monthly.</p>
       <div class="hero-cta">
         <a href="{{ order_url }}" class="btn btn-primary btn-lg">Order Now</a>
         <a href="{{ WHATSAPP_URL }}" class="btn btn-whatsapp btn-lg" target="_blank" rel="noopener">💬 Order on WhatsApp</a>
@@ -20,6 +20,23 @@
         <li>✅ FSSAI compliant</li>
         <li>🚚 Free delivery in listed areas</li>
         <li>⏱ Lunch by 1 PM</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- INTRO / ABOUT (keyword-rich, helps page text content + local SEO) -->
+<section class="section section-cream section-intro">
+  <div class="container intro-grid">
+    <div class="intro-text">
+      <h2>Homestyle veg tiffin, delivered hot in {{ SITE.city }}</h2>
+      <p>{{ SITE.business_name }} is a small-batch tiffin service cooking fresh, balanced vegetarian meals every morning. Whether you're a working professional looking for an honest <strong>office lunch tiffin</strong>, a student or PG resident wanting a <strong>monthly tiffin plan</strong>, or just searching for <strong>tiffin near me</strong> that tastes like home — we've got you covered.</p>
+      <p>Each tiffin includes 4 fresh roti, sabzi, dal, rice and salad — cooked in less oil with balanced spice. Lunch is delivered by 1 PM, dinner by 8:30 PM. Order daily, weekly or save big with the <strong>PG Monthly Plan</strong> at ₹3200 / month. No app to install, no online payment — just confirm on WhatsApp.</p>
+      <ul class="intro-stats">
+        <li><strong>2</strong><span>Plans</span></li>
+        <li><strong>10+</strong><span>Add-ons</span></li>
+        <li><strong>FSSAI</strong><span>Compliant</span></li>
+        <li><strong>{{ SITE.city }}</strong><span>Service area</span></li>
       </ul>
     </div>
   </div>
@@ -35,7 +52,7 @@
 
     <article class="today-card-v2">
       <div class="today-photo">
-        <img src="{% static 'img/today-spread.png' %}" alt="Today's homestyle tiffin spread" loading="lazy"
+        <img src="{% static 'img/today-spread.webp' %}" alt="Today's homestyle tiffin spread" loading="lazy"
              onerror="this.parentElement.style.display='none';">
         <span class="today-date">📅 {{ today_label }}</span>
         <span class="today-fresh-tag">🌿 Cooked this morning</span>
@@ -116,19 +133,19 @@
     </header>
     <div class="steps-grid">
       <div class="step-tile">
-        <div class="step-img"><img src="{% static 'img/cooking.png' %}" alt="Cook preparing fresh meal" loading="lazy" onerror="this.parentElement.classList.add('no-image')"></div>
+        <div class="step-img"><img src="{% static 'img/cooking.webp' %}" alt="Cook preparing fresh meal" loading="lazy" onerror="this.parentElement.classList.add('no-image')"></div>
         <div class="step-meta"><span class="step-badge">01</span><h3>Cooked Fresh</h3><p class="muted">Ingredients sourced daily, cooked the same morning in our home kitchen.</p></div>
       </div>
       <div class="step-tile">
-        <div class="step-img"><img src="{% static 'img/kitchen.png' %}" alt="Hygienic kitchen — gloves, masks, hairnets" loading="lazy" onerror="this.parentElement.classList.add('no-image')"></div>
+        <div class="step-img"><img src="{% static 'img/kitchen.webp' %}" alt="Hygienic kitchen — gloves, masks, hairnets" loading="lazy" onerror="this.parentElement.classList.add('no-image')"></div>
         <div class="step-meta"><span class="step-badge">02</span><h3>Packed Hygienically</h3><p class="muted">Sealed steel tiffins. Staff in gloves, masks and hairnets — FSSAI compliant.</p></div>
       </div>
       <div class="step-tile">
-        <div class="step-img"><img src="{% static 'img/delivery.png' %}" alt="Delivery to your door" loading="lazy" onerror="this.parentElement.classList.add('no-image')"></div>
+        <div class="step-img"><img src="{% static 'img/delivery.webp' %}" alt="Delivery to your door" loading="lazy" onerror="this.parentElement.classList.add('no-image')"></div>
         <div class="step-meta"><span class="step-badge">03</span><h3>Delivered On Time</h3><p class="muted">Lunch by 1 PM, dinner by 8:30 PM. To your office, PG or home.</p></div>
       </div>
       <div class="step-tile">
-        <div class="step-img"><img src="{% static 'img/enjoy.png' %}" alt="Customer enjoying a tiffin meal" loading="lazy" onerror="this.parentElement.classList.add('no-image')"></div>
+        <div class="step-img"><img src="{% static 'img/enjoy.webp' %}" alt="Customer enjoying a tiffin meal" loading="lazy" onerror="this.parentElement.classList.add('no-image')"></div>
         <div class="step-meta"><span class="step-badge">04</span><h3>Enjoy Ghar Ka Khaana</h3><p class="muted">Hot, balanced, homestyle taste — like maa ke haath ka khaana.</p></div>
       </div>
     </div>
@@ -163,7 +180,7 @@
     </header>
     <div class="areas-layout">
       <div class="areas-image">
-        <img src="{% static 'img/areas-map.png' %}" alt="Delivery routes map" loading="lazy"
+        <img src="{% static 'img/areas-map.webp' %}" alt="Delivery routes map" loading="lazy"
              onerror="this.parentElement.style.display='none';">
       </div>
       <ul class="areas-grid">
@@ -171,6 +188,24 @@
           <li class="area-pill">📍 {{ area.name }}</li>
         {% endfor %}
       </ul>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ (FAQPage schema lives in JSON-LD; this is the visible content) -->
+<section class="section" id="faq">
+  <div class="container">
+    <header class="section-head">
+      <h2>Tiffin Service — Frequently Asked Questions</h2>
+      <p class="muted">Everything you need to know before you order.</p>
+    </header>
+    <div class="faq-grid">
+      {% for q, a in faqs %}
+      <details class="faq-item">
+        <summary><span>{{ q }}</span><span class="faq-toggle" aria-hidden="true">+</span></summary>
+        <p class="faq-answer">{{ a }}</p>
+      </details>
+      {% endfor %}
     </div>
   </div>
 </section>
@@ -187,7 +222,7 @@
       </div>
     </div>
     <div class="cta-image" aria-hidden="true">
-      <img src="{% static 'img/whatsapp.png' %}" alt="" loading="lazy"
+      <img src="{% static 'img/whatsapp.webp' %}" alt="" loading="lazy"
            onerror="this.parentElement.style.display='none';">
     </div>
   </div>

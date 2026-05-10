@@ -4,13 +4,63 @@ from urllib.parse import quote
 from django.contrib import messages
 from django.contrib.auth import authenticate, login as auth_login, logout as auth_logout
 from django.contrib.auth.decorators import login_required, user_passes_test
+from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils.decorators import method_decorator
-from django.views.decorators.http import require_http_methods, require_POST
+from django.views.decorators.cache import cache_control
+from django.views.decorators.http import require_GET, require_http_methods, require_POST
 
+from . import seo
 from .forms import OrderForm
 from .models import Addon, DailyMenu, DeliveryArea, Order, Plan, SiteSettings
+
+
+FAQS = [
+    (
+        "How does the tiffin service work?",
+        "Pick a plan, choose lunch / dinner / both, fill your details on the order form, "
+        "and confirm on WhatsApp. We deliver fresh-cooked meals to your door at lunch (by 1 PM) "
+        "or dinner (by 8:30 PM). No app to install, no payment online."
+    ),
+    (
+        "What's the price of one tiffin?",
+        "₹70 per meal for the Daily Tiffin (4 roti, sabzi, dal, rice, salad). For long-term "
+        "subscribers, our PG Monthly Plan is ₹3200 per month — works out to a big saving over "
+        "ordering daily."
+    ),
+    (
+        "Do you deliver near me?",
+        "We deliver inside our active service zone. On the order page, tap 'Set delivery location', "
+        "search for your address or use GPS — the map will show whether you're inside our delivery "
+        "circle. If you're outside, you can still pick up from the counter."
+    ),
+    (
+        "Is the food vegetarian?",
+        "Yes. All our tiffin plans are 100% vegetarian. Cooked in a clean, FSSAI-compliant kitchen "
+        "with masks, hairnets and gloves. Less oil, balanced spice — homestyle taste."
+    ),
+    (
+        "Can I get both lunch and dinner?",
+        "Yes — pick 'Lunch + Dinner' on the order form. The quantity automatically doubles "
+        "(e.g. ordering 5 means 5 lunch + 5 dinner = 10 meals)."
+    ),
+    (
+        "Do I need to pay online?",
+        "No. There's no online payment. Orders are confirmed on WhatsApp and you pay on delivery "
+        "or via UPI to the owner. We're a small local kitchen — keeping it simple and human."
+    ),
+    (
+        "What if I want to skip a day or cancel my monthly plan?",
+        "Just message us on WhatsApp before 9 AM that day for lunch, or before 5 PM for dinner. "
+        "Monthly plans can be paused; remaining days roll over to the next month."
+    ),
+    (
+        "Do you cater for offices, PGs and corporate orders?",
+        "Yes. Bulk and corporate orders are welcome. Send us a WhatsApp message with the headcount "
+        "and address and we'll customize a plan."
+    ),
+]
 
 
 WHY_CHOOSE_US = [
@@ -34,19 +84,81 @@ def _todays_menu():
 
 def home(request):
     lunch, dinner = _todays_menu()
+    site = SiteSettings.get()
+    plans = list(Plan.objects.filter(is_active=True))
+    areas = list(DeliveryArea.objects.filter(is_active=True))
+
+    # JSON-LD for SEO: a restaurant snippet, today's menu, and an FAQ page
+    jsonld = [
+        seo.restaurant_jsonld(request, site, areas, plans),
+        seo.faq_jsonld(FAQS),
+    ]
+    menu_payload = seo.menu_jsonld(request, site, lunch, dinner)
+    if menu_payload:
+        jsonld.append(menu_payload)
+
     ctx = {
-        "plans": Plan.objects.filter(is_active=True),
+        "plans": plans,
         "todays_lunch": lunch,
         "todays_dinner": dinner,
         "today_label": date.today().strftime("%A, %d %b"),
         "why_choose_us": WHY_CHOOSE_US,
-        "areas": DeliveryArea.objects.filter(is_active=True),
+        "areas": areas,
+        "faqs": FAQS,
+        "page_title": (
+            f"Tiffin Service in {site.city} — Fresh Homemade Veg Tiffin Delivery | {site.short_name}"
+        ),
+        "page_description": site.site_description,
+        "jsonld_blobs": [seo.dump(j) for j in jsonld if j],
+        "canonical_url": seo.canonical(request),
     }
     return render(request, "tiffin/home.html", ctx)
 
 
 def menu(request):
-    return render(request, "tiffin/menu.html", {"plans": Plan.objects.filter(is_active=True)})
+    site = SiteSettings.get()
+    plans = list(Plan.objects.filter(is_active=True))
+    areas = list(DeliveryArea.objects.filter(is_active=True))
+    jsonld = [
+        seo.restaurant_jsonld(request, site, areas, plans),
+        seo.breadcrumb_jsonld([
+            ("Home", request.build_absolute_uri(reverse("home"))),
+            ("Plans", request.build_absolute_uri(reverse("menu"))),
+        ]),
+    ]
+    return render(request, "tiffin/menu.html", {
+        "plans": plans,
+        "page_title": f"Tiffin Plans & Pricing — ₹70/meal · ₹3200/month | {site.short_name}",
+        "page_description": (
+            f"Two simple tiffin plans from {site.business_name}: Daily Tiffin at ₹70 per meal "
+            f"and PG Monthly Plan at ₹3200 per month. Fresh, homemade vegetarian meals delivered "
+            f"in {site.city}."
+        ),
+        "jsonld_blobs": [seo.dump(j) for j in jsonld if j],
+        "canonical_url": seo.canonical(request),
+    })
+
+
+# ---------- SEO endpoints --------------------------------------------------
+
+@require_GET
+@cache_control(max_age=3600, public=True)
+def robots_txt(request):
+    site = SiteSettings.get()
+    sitemap_url = request.build_absolute_uri(reverse("sitemap"))
+    body = "\n".join([
+        "User-agent: *",
+        "Allow: /",
+        "Disallow: /django-admin/",
+        "Disallow: /admin-orders/",
+        "Disallow: /admin-login/",
+        "Disallow: /admin-logout/",
+        "Disallow: /order/success/",
+        "",
+        f"Sitemap: {sitemap_url}",
+        "",
+    ])
+    return HttpResponse(body, content_type="text/plain; charset=utf-8")
 
 
 @require_http_methods(["GET", "POST"])

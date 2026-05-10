@@ -1,20 +1,28 @@
 {% extends "tiffin/base.html" %}
-{% block title %}Tiffin Plans — {{ BUSINESS.name }}{% endblock %}
+{% block title %}{{ page_title }}{% endblock %}
+{% block description %}{{ page_description }}{% endblock %}
 
 {% block content %}
 <section class="section section-page-head">
   <div class="container">
-    <h1>Our Tiffin Plans</h1>
-    <p class="muted">Simple, honest options. Tap a plan to start your order.</p>
+    <h1>Tiffin Plans &amp; Pricing — {{ SITE.city }}</h1>
+    <p class="muted">Two simple, honest plans. Pick a tiffin plan that fits your day. No hidden charges in listed delivery areas.</p>
   </div>
 </section>
 
 <section class="section">
   <div class="container">
-    <div class="plans-grid">
+    <div class="plans-grid plans-2">
       {% for plan in plans %}
         {% include "tiffin/components/plan_card.html" with plan=plan %}
       {% endfor %}
+    </div>
+
+    <div class="plans-prose">
+      <h2>Which tiffin plan should I choose?</h2>
+      <p>Our <strong>Daily Tiffin at ₹70 per meal</strong> is the right pick if you're trying us out, ordering occasionally, or sharing across an office team. You pay only for what you order; no commitments. Each tiffin includes 4 roti, sabzi, dal, rice and salad — a balanced homestyle meal that's filling but not heavy.</p>
+      <p>The <strong>PG Monthly Plan at ₹3200 per month</strong> is built for students, PG residents and working professionals who want both lunch and dinner every day with predictable pricing. The plan includes weekly menu rotation and a special meal once a week. Works out to roughly ₹53 per meal — the best value we offer.</p>
+      <p>Need something custom? Bulk corporate orders and warehouse tiffin contracts are welcome — just reach out on WhatsApp with your requirement.</p>
     </div>
   </div>
 </section>

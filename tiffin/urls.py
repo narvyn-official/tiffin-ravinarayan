@@ -1,12 +1,18 @@
+from django.contrib.sitemaps.views import sitemap
 from django.urls import path
 
 from . import views
+from .sitemaps import SITEMAPS
 
 urlpatterns = [
     path("", views.home, name="home"),
     path("menu/", views.menu, name="menu"),
     path("order/", views.order, name="order"),
     path("order/success/<str:code>/", views.order_success, name="order_success"),
+
+    # SEO
+    path("robots.txt", views.robots_txt, name="robots_txt"),
+    path("sitemap.xml", sitemap, {"sitemaps": SITEMAPS}, name="sitemap"),
 
     # Custom auth (separate from /django-admin/ which has its own)
     path("admin-login/", views.admin_login, name="admin_login"),

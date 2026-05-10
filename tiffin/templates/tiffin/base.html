@@ -4,15 +4,39 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <meta name="theme-color" content="#1f7a3a" />
-  <meta name="description" content="{{ SITE.business_name }} — fresh homemade tiffin delivered daily. {{ SITE.tagline }}" />
 
-  <!-- Open Graph / social -->
-  <meta property="og:type" content="website" />
-  <meta property="og:title" content="{{ SITE.business_name }} — Fresh Homemade Tiffin" />
-  <meta property="og:description" content="{{ SITE.tagline }}" />
-  <meta property="og:image" content="{% static 'img/logo.png' %}" />
+  <title>{% block title %}{{ page_title|default:SITE.business_name }}{% endblock %}</title>
+  <meta name="description" content="{% block description %}{{ page_description|default:SITE.site_description }}{% endblock %}" />
+  {% if SITE.seo_keywords %}<meta name="keywords" content="{{ SITE.seo_keywords }}">{% endif %}
 
-  <title>{% block title %}{{ SITE.business_name }} — Fresh Homemade Tiffin{% endblock %}</title>
+  {# robots: indexable on public pages, "noindex" on transactional/admin via {% block robots %} #}
+  <meta name="robots" content="{% block robots %}index, follow, max-image-preview:large{% endblock %}" />
+  <meta name="author" content="{{ SITE.business_name }}" />
+
+  <link rel="canonical" href="{% block canonical %}{{ canonical_url }}{% endblock %}" />
+
+  {# Geo meta tags for local search engines #}
+  {% if SITE.delivery_center_lat and SITE.delivery_center_lng %}
+  <meta name="geo.region" content="{{ SITE.country_code }}-{{ SITE.state }}" />
+  <meta name="geo.placename" content="{{ SITE.city }}" />
+  <meta name="geo.position" content="{{ SITE.delivery_center_lat }};{{ SITE.delivery_center_lng }}" />
+  <meta name="ICBM" content="{{ SITE.delivery_center_lat }}, {{ SITE.delivery_center_lng }}" />
+  {% endif %}
+
+  {# Open Graph #}
+  <meta property="og:type" content="restaurant.restaurant" />
+  <meta property="og:site_name" content="{{ SITE.business_name }}" />
+  <meta property="og:title" content="{% block og_title %}{{ page_title|default:SITE.business_name }}{% endblock %}" />
+  <meta property="og:description" content="{% block og_description %}{{ page_description|default:SITE.site_description }}{% endblock %}" />
+  <meta property="og:url" content="{{ canonical_url }}" />
+  <meta property="og:image" content="{% block og_image %}{{ request.scheme }}://{{ request.get_host }}{% asset 'img/logo.png' %}{% endblock %}" />
+  <meta property="og:locale" content="en_IN" />
+
+  {# Twitter card #}
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="{% block tw_title %}{{ page_title|default:SITE.business_name }}{% endblock %}" />
+  <meta name="twitter:description" content="{% block tw_description %}{{ page_description|default:SITE.site_description }}{% endblock %}" />
+  <meta name="twitter:image" content="{% block tw_image %}{{ request.scheme }}://{{ request.get_host }}{% asset 'img/logo.png' %}{% endblock %}" />
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -21,6 +45,22 @@
   <link rel="stylesheet" href="{% asset 'css/styles.css' %}" />
   <link rel="icon" type="image/png" sizes="any" href="{% asset 'img/logo.png' %}">
   <link rel="apple-touch-icon" href="{% asset 'img/logo.png' %}">
+
+  {# Per-page Schema.org JSON-LD #}
+  {% for blob in jsonld_blobs %}
+    <script type="application/ld+json">{{ blob|safe }}</script>
+  {% endfor %}
+
+  {# Google Analytics 4 (only loads if a measurement ID is set in admin) #}
+  {% if SITE.ga_measurement_id %}
+  <script async src="https://www.googletagmanager.com/gtag/js?id={{ SITE.ga_measurement_id }}"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', '{{ SITE.ga_measurement_id }}', {anonymize_ip: true});
+  </script>
+  {% endif %}
 </head>
 <body class="page-{{ request.resolver_match.url_name|default:'home' }}">
   {% include "tiffin/components/navbar.html" %}

@@ -14,7 +14,7 @@ NEW_PLANS = [
         "unit": "per meal",
         "items": "4 Roti\nSabzi\nDal\nRice\nSalad",
         "badge": "Most Popular",
-        "image_filename": "plan-daily.png",
+        "image_filename": "plan-daily.webp",
         "sort_order": 1,
     },
     {
@@ -25,7 +25,7 @@ NEW_PLANS = [
         "unit": "per month",
         "items": "Lunch + Dinner daily\n4 Roti, Sabzi, Dal, Rice\nWeekly menu rotation\n1 special meal / week",
         "badge": "Best Value",
-        "image_filename": "plan-monthly.png",
+        "image_filename": "plan-monthly.webp",
         "sort_order": 2,
     },
 ]

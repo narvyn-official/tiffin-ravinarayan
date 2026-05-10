@@ -53,11 +53,38 @@ class SiteSettings(models.Model):
     )
     email = models.EmailField(default="orders@ravinarayan.example")
     address = models.CharField(max_length=300, default="Shop 12, Market Road, Pune 411001")
+    # Split address pieces for proper schema.org PostalAddress + local SEO
+    city = models.CharField(max_length=80, default="Pune")
+    state = models.CharField(max_length=80, default="Maharashtra")
+    postal_code = models.CharField(max_length=12, default="411001")
+    country = models.CharField(max_length=80, default="India")
+    country_code = models.CharField(max_length=2, default="IN", help_text="ISO 2-letter — e.g. IN, US.")
     hours = models.CharField(max_length=120, default="Mon – Sat, 10:00 AM – 9:00 PM")
 
     instagram_url = models.URLField(blank=True)
     facebook_url = models.URLField(blank=True)
-    google_maps_url = models.URLField(blank=True)
+    google_maps_url = models.URLField(blank=True, help_text="Your Google Business Profile / maps listing URL.")
+    google_business_url = models.URLField(blank=True, help_text="Your Google Business Profile sharable link.")
+
+    # SEO / analytics
+    ga_measurement_id = models.CharField(
+        max_length=20, blank=True,
+        help_text="Google Analytics 4 Measurement ID (e.g. G-XXXXXXXXXX). Leave blank to disable.",
+    )
+    seo_keywords = models.CharField(
+        max_length=400, blank=True,
+        default="tiffin service, tiffin near me, homemade tiffin, lunch tiffin, monthly tiffin, PG tiffin, office lunch, ghar ka khana, veg tiffin, dabba service",
+        help_text="Comma-separated keywords. Used in meta keywords + helps drive copy.",
+    )
+    site_description = models.CharField(
+        max_length=320, blank=True,
+        default=(
+            "Fresh, homemade veg tiffin service. Daily lunch & dinner at ₹70 per meal "
+            "or ₹3200 per month. Lunch by 1 PM, dinner by 8:30 PM. FSSAI compliant kitchen. "
+            "Order on WhatsApp or our website."
+        ),
+        help_text="160-300 chars. Used as the site-wide default meta description.",
+    )
 
     # --- Delivery zone (geofence) ---
     delivery_center_lat = models.DecimalField(
@@ -159,7 +186,15 @@ class Plan(models.Model):
     @property
     def image_path(self) -> str:
         """Filename inside static/img/ — explicit if set, otherwise convention."""
-        return self.image_filename or f"plan-{self.slug}.jpg"
+        return self.image_filename or f"plan-{self.slug}.png"
+
+    @property
+    def image_path_webp(self) -> str:
+        """WebP version of image_path (50–80% smaller). Same name, .webp ext."""
+        base = self.image_path
+        if base.lower().endswith((".png", ".jpg", ".jpeg")):
+            return base.rsplit(".", 1)[0] + ".webp"
+        return base
 
 
 # --- addons -----------------------------------------------------------------

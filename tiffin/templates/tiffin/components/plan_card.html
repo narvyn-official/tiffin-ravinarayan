@@ -2,7 +2,9 @@
 {% url 'order' as order_url %}
 <article class="plan-card{% if plan.badge %} has-badge{% endif %}">
   <div class="plan-image">
-    <img src="{% static 'img/' %}{{ plan.image_path }}" alt="{{ plan.name }}" loading="lazy"
+    <img src="{% static 'img/' %}{{ plan.image_path_webp }}"
+         alt="{{ plan.name }} — homemade tiffin from {{ SITE.business_name }}"
+         loading="lazy" decoding="async"
          onerror="this.parentElement.classList.add('no-image'); this.remove();">
   </div>
   {% if plan.badge %}<span class="plan-badge">{{ plan.badge }}</span>{% endif %}
