@@ -200,6 +200,14 @@ def order(request):
             initial["plan"] = Plan.objects.get(slug=plan_slug, is_active=True).pk
         except Plan.DoesNotExist:
             pass
+    # Preselect the first/cheapest active plan if none was requested.
+    # Cuts one tap on a phone, and the user can change with one tap.
+    if "plan" not in initial:
+        default_plan = (
+            Plan.objects.filter(is_active=True).order_by("sort_order", "price").first()
+        )
+        if default_plan:
+            initial["plan"] = default_plan.pk
     meal_param = request.GET.get("meal")
     if meal_param in dict(Order.MealTime.choices):
         initial["meal_time"] = meal_param

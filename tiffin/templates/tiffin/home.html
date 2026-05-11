@@ -18,8 +18,9 @@
       </div>
       <ul class="hero-trust">
         <li>✅ FSSAI compliant</li>
-        <li>🚚 Free delivery in listed areas</li>
+        <li>🚚 Free delivery in {% for a in areas %}{{ a.name }}{% if not forloop.last %} &amp; {% endif %}{% empty %}listed areas{% endfor %}</li>
         <li>⏱ Lunch by 1 PM</li>
+        <li>💬 Order on WhatsApp</li>
       </ul>
     </div>
   </div>

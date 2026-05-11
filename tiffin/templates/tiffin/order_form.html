@@ -164,6 +164,11 @@
           </div>
           <div class="form-row">
             <label for="{{ form.delivery_date.id_for_label }}">Date <span class="req">*</span></label>
+            <div class="date-chips" data-date-chips role="group" aria-label="Quick date select">
+              <button type="button" class="date-chip" data-day-offset="1">Tomorrow</button>
+              <button type="button" class="date-chip" data-day-offset="2">Day after</button>
+              <button type="button" class="date-chip" data-day-offset="3">In 3 days</button>
+            </div>
             {{ form.delivery_date }}
             {% if form.delivery_date.errors %}<div class="field-error">{{ form.delivery_date.errors|join:" " }}</div>{% endif %}
           </div>
@@ -293,10 +298,10 @@
     </div>
   </div>
 
-  <!-- Mobile-only fixed bottom CTA: always-visible total + Place Order -->
+  <!-- Mobile-only fixed bottom CTA: live plan + qty + total + Place Order -->
   <div class="mobile-cta-bar" data-mobile-cta>
     <div class="mobile-cta-info">
-      <span class="mobile-cta-label">Total</span>
+      <span class="mobile-cta-plan muted" data-mobile-plan>Pick a plan</span>
       <span class="mobile-cta-total">₹<span data-sum-total-mobile>0</span></span>
     </div>
     <button type="submit" form="order-form" class="btn btn-primary mobile-cta-btn">

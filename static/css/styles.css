@@ -1306,12 +1306,19 @@ body.loc-modal-open { overflow: hidden; }
     border-top: 1px solid var(--ink-100);
     box-shadow: 0 -8px 24px rgba(20,30,25,.12);
   }
-  .mobile-cta-info { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
-  .mobile-cta-label { font-size: .75rem; color: var(--ink-500); font-weight: 500; }
-  .mobile-cta-total { font-size: 1.4rem; font-weight: 800; color: var(--green-700); line-height: 1; }
-  .mobile-cta-btn { padding: 14px 22px; font-size: 1rem; flex: 0 0 auto; }
+  .mobile-cta-info {
+    display: flex; flex-direction: column; gap: 2px; min-width: 0; flex: 1 1 auto;
+  }
+  .mobile-cta-plan {
+    font-size: .85rem; color: var(--ink-700); font-weight: 600;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    max-width: 60vw;
+  }
+  .mobile-cta-plan.muted { color: var(--ink-500); font-weight: 500; }
+  .mobile-cta-total { font-size: 1.4rem; font-weight: 800; color: var(--green-700); line-height: 1.1; }
+  .mobile-cta-btn { padding: 14px 20px; font-size: .95rem; flex: 0 0 auto; }
   /* On the order page, give the form bottom-padding so content isn't hidden */
-  body.page-order main { padding-bottom: 96px; }
+  body.page-order main { padding-bottom: 110px; }
   /* Hide the floating WhatsApp FAB on the order page (CTA bar takes that role) */
   body.page-order .whatsapp-fab { display: none; }
   /* Demote the in-form summary submit button on mobile (the bar is the primary) */
@@ -1452,6 +1459,74 @@ body.loc-modal-open { overflow: hidden; }
 .plans-prose h2 { font-size: 1.3rem; margin-bottom: 12px; }
 .plans-prose p { color: var(--ink-700); line-height: 1.65; margin-bottom: 12px; }
 .plans-prose strong { color: var(--green-700); }
+
+/* DATE CHIPS (above the delivery_date input) ----------------- */
+.date-chips {
+  display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 8px;
+}
+.date-chip {
+  padding: 8px 14px; min-height: 36px;
+  background: var(--white); color: var(--ink-700);
+  border: 1px solid var(--ink-100); border-radius: 999px;
+  font: inherit; font-size: .88rem; font-weight: 500;
+  cursor: pointer; transition: all .15s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+.date-chip:hover { border-color: var(--green-300); color: var(--green-700); }
+.date-chip:active { transform: scale(.97); }
+.date-chip.is-active {
+  background: var(--green-600); border-color: var(--green-600);
+  color: #fff; font-weight: 600;
+}
+
+/* TAP-FEEDBACK polish (mobile-first) ------------------------- */
+.plan-pick, .addon-card, .method-option, .loc-trigger, .meal-cta, .btn {
+  -webkit-tap-highlight-color: transparent;
+}
+.plan-pick-inner, .addon-card, .method-card {
+  transition: transform .12s ease, border-color .15s ease, background .15s ease, box-shadow .15s ease;
+}
+.plan-pick:active .plan-pick-inner,
+.method-option:active .method-card { transform: scale(.99); }
+.addon-card:active { transform: scale(.99); }
+
+/* Plan-pick checked: emphasise the green check more (mobile feedback) */
+.plan-pick input:checked + .plan-pick-inner {
+  animation: planPickPulse .35s ease;
+}
+@keyframes planPickPulse {
+  0%   { transform: scale(.97); }
+  60%  { transform: scale(1.015); }
+  100% { transform: scale(1); }
+}
+
+/* LOCATION MODAL — mobile-specific polish -------------------- */
+@media (max-width: 720px) {
+  /* Use dynamic viewport height where supported so iOS Safari's URL bar
+     doesn't clip the bottom Confirm button. */
+  .loc-modal-panel {
+    height: 100dvh; max-height: 100dvh;
+  }
+  /* If the on-screen keyboard pushes layout, let the panel scroll its content
+     rather than overflow the viewport. */
+  .loc-modal-search { position: sticky; top: 0; z-index: 6; }
+  .loc-modal-foot {
+    position: sticky; bottom: 0; z-index: 6;
+    background: var(--white);
+    box-shadow: 0 -4px 16px rgba(20,30,25,.06);
+  }
+  /* Bigger tap targets inside the modal */
+  .loc-modal-close { width: 44px; height: 44px; }
+  .loc-gps-btn { min-height: 44px; padding: 10px 14px; font-size: .95rem; }
+  .loc-search-input { font-size: 16px !important; min-height: 48px; }
+  .loc-confirm { min-height: 52px; font-size: 1rem; }
+  /* Search-results list: enough scroll room above the foot */
+  .loc-search-results { max-height: 40vh; }
+}
+
+/* Make the trigger card's "Change" affordance more obvious post-select */
+.loc-trigger.is-set { padding: 14px 18px; }
+.loc-trigger.is-set .loc-trigger-icon { font-size: 1.5rem; }
 
 /* Reduce motion if requested */
 @media (prefers-reduced-motion: reduce) {

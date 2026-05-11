@@ -71,6 +71,7 @@
   const sumAddonsTotalEl = $("[data-sum-addons-total]");
   const sumTotalEl = $("[data-sum-total]");
   const sumTotalMobileEl = $("[data-sum-total-mobile]");
+  const mobilePlanEl = $("[data-mobile-plan]");
 
   const fmt = (n) => "₹" + Math.max(0, Math.round(n)).toLocaleString("en-IN");
 
@@ -188,6 +189,16 @@
     const grand = planSubtotal + addonsTotal;
     if (sumTotalEl) sumTotalEl.textContent = grand.toLocaleString("en-IN");
     if (sumTotalMobileEl) sumTotalMobileEl.textContent = grand.toLocaleString("en-IN");
+    if (mobilePlanEl) {
+      if (plan) {
+        const mealNote = mult > 1 ? " · L+D" : "";
+        mobilePlanEl.textContent = `${plan.name} × ${qty}${mealNote}`;
+        mobilePlanEl.classList.remove("muted");
+      } else {
+        mobilePlanEl.textContent = "Pick a plan";
+        mobilePlanEl.classList.add("muted");
+      }
+    }
 
     // Live missing-fields hint
     const missing = buildRequired().filter((r) => !isFilled(r.input));
@@ -219,15 +230,57 @@
   });
 
   // ---- plan picker ------------------------------------------------------
+  let userHasPickedPlan = false;
+  const isMobile = () => window.matchMedia("(max-width: 879px)").matches;
+
   planPicks.forEach((label) => {
     const input = label.querySelector("input");
     input.addEventListener("change", () => {
       if (planHidden) planHidden.value = input.value;
       recompute();
+      // On mobile only: smooth-scroll to step 2 after the user actively picks
+      // a plan. Don't auto-scroll for the pre-selected default — that would
+      // jump the page on first load.
+      if (userHasPickedPlan && isMobile()) {
+        const next = form.querySelectorAll("fieldset.step-card")[1];
+        if (next) setTimeout(() => next.scrollIntoView({ behavior: "smooth", block: "start" }), 220);
+      }
+      userHasPickedPlan = true;
     });
   });
   const preChecked = $('input[name="plan_pick"]:checked');
   if (preChecked && planHidden) planHidden.value = preChecked.value;
+
+  // ---- date chips: Tomorrow / Day after / In 3 days --------------------
+  const dateInput = $("#id_delivery_date");
+  const dateChipsWrap = $("[data-date-chips]");
+  function syncDateChips() {
+    if (!dateInput || !dateChipsWrap) return;
+    const today = new Date(); today.setHours(0,0,0,0);
+    const v = dateInput.value;
+    dateChipsWrap.querySelectorAll(".date-chip").forEach((c) => {
+      const offset = parseInt(c.dataset.dayOffset, 10);
+      const d = new Date(today); d.setDate(d.getDate() + offset);
+      const iso = d.toISOString().slice(0, 10);
+      c.classList.toggle("is-active", v === iso);
+    });
+  }
+  if (dateChipsWrap) {
+    dateChipsWrap.querySelectorAll(".date-chip").forEach((chip) => {
+      chip.addEventListener("click", () => {
+        const today = new Date(); today.setHours(0,0,0,0);
+        const offset = parseInt(chip.dataset.dayOffset, 10);
+        const d = new Date(today); d.setDate(d.getDate() + offset);
+        if (dateInput) {
+          dateInput.value = d.toISOString().slice(0, 10);
+          dateInput.dispatchEvent(new Event("input", { bubbles: true }));
+        }
+        syncDateChips();
+      });
+    });
+    if (dateInput) dateInput.addEventListener("input", syncDateChips);
+    syncDateChips();
+  }
 
   // Watch every required field so the live hint stays accurate
   ["#id_full_name","#id_phone","#id_address","#id_area","#id_quantity",
