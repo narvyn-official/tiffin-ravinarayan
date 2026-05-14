@@ -14,9 +14,9 @@ class SiteSettingsAdmin(admin.ModelAdmin):
         ("Delivery zone (geofence)", {
             "fields": ("delivery_center_lat", "delivery_center_lng", "delivery_radius_km"),
             "description": (
-                "Set your kitchen's coordinates and an optional max delivery radius (km). "
+                "Set your kitchen's coordinates and the max delivery radius (km). "
                 "Delivery is free up to 2 km, then ₹10 per started 2 km slab. "
-                "Set radius to 0 or 2 for no hard cap; set a higher number to reject orders beyond it."
+                "Orders beyond 4 km are rejected; pickup can still be offered."
             ),
         }),
         ("Pickup", {"fields": ("pickup_enabled",)}),

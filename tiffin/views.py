@@ -13,7 +13,8 @@ from django.views.decorators.http import require_GET, require_http_methods, requ
 
 from . import seo
 from .catalog import visible_plans
-from .forms import OrderForm
+from .forms import OrderForm, TIFFIN_DINNER_CUTOFF, TIFFIN_LUNCH_CUTOFF
+from .geo import MAX_DELIVERY_KM
 from .models import Addon, DailyMenu, DeliveryArea, Order, Plan, SiteSettings
 
 
@@ -34,7 +35,7 @@ FAQS = [
         "Do you deliver near me?",
         "We currently deliver in Metcity, Yakubpur, Bahadurgarh and Farrukhnagar (Jhajjar district, "
         "Haryana). On the order page, tap 'Set delivery location', search for your address or use "
-        "GPS — the map will show whether you're inside our delivery circle. If you're outside, you "
+        "GPS — the map will show whether you're inside our 4 km delivery circle. If you're outside, you "
         "can still pick up from the counter."
     ),
     (
@@ -68,7 +69,7 @@ FAQS = [
 WHY_CHOOSE_US = [
     {"icon": "🌿", "title": "Fresh Daily", "text": "Cooked the same morning — never reheated from yesterday."},
     {"icon": "🛡", "title": "Hygienic Kitchen", "text": "FSSAI norms, sealed containers, gloves and head-caps."},
-    {"icon": "₹",  "title": "Affordable", "text": "Delivery is free up to 2 km, then ₹10 per 2 km slab."},
+    {"icon": "₹",  "title": "Affordable", "text": "Free delivery up to 2 km, then ₹10 per 2 km. Max delivery 4 km."},
     {"icon": "⏱", "title": "On Time", "text": "Lunch by 1 PM, dinner by 8:30 PM — every day."},
     {"icon": "❤️", "title": "Homestyle Taste", "text": "Less oil, balanced spice — like ghar ka khaana."},
     {"icon": "📞", "title": "Easy to Order", "text": "Order on WhatsApp or in 30 seconds on this site."},
@@ -90,6 +91,10 @@ def _set_anonymous_cache(response, max_age=120):
     response["Cache-Control"] = f"public, max-age={max_age}, stale-while-revalidate=600"
     response["Vary"] = "Cookie, Accept-Encoding"
     return response
+
+
+def _minutes_after_midnight(value):
+    return value.hour * 60 + value.minute
 
 
 # ---------- public pages ----------------------------------------------------
@@ -193,6 +198,7 @@ def robots_txt(request):
 def order(request):
     plans = list(visible_plans())
     addons = list(Addon.objects.filter(is_active=True))
+    now = timezone.localtime()
 
     initial = {}
     plan_slug = request.GET.get("plan")
@@ -231,6 +237,11 @@ def order(request):
             "form": form,
             "plans": plans,
             "addons": addons,
+            "order_today_iso": now.date().isoformat(),
+            "order_current_minutes": _minutes_after_midnight(now.time()),
+            "tiffin_lunch_cutoff_minutes": _minutes_after_midnight(TIFFIN_LUNCH_CUTOFF),
+            "tiffin_dinner_cutoff_minutes": _minutes_after_midnight(TIFFIN_DINNER_CUTOFF),
+            "max_delivery_km": MAX_DELIVERY_KM,
         },
     )
 

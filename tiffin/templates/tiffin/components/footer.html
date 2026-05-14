@@ -23,6 +23,7 @@
   </div>
   <div class="footer-bottom">
     <span>© {% now "Y" %} {{ SITE.business_name }}. All rights reserved.</span>
+    <span class="footer-credit">Website by Narvyn · <a href="https://narvyn.com" target="_blank" rel="noopener">narvyn.com</a></span>
     {% if request.user.is_authenticated and request.user.is_staff %}
       &nbsp;·&nbsp;
       <form method="post" action="{% url 'admin_logout' %}" style="display:inline">{% csrf_token %}

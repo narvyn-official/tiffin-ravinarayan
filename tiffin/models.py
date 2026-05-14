@@ -113,10 +113,10 @@ class SiteSettings(models.Model):
         help_text="Longitude of your kitchen / business hub.",
     )
     delivery_radius_km = models.DecimalField(
-        max_digits=5, decimal_places=2, default=0,
+        max_digits=5, decimal_places=2, default=4,
         help_text=(
-            "Maximum delivery distance in km. 0 or 2 = no hard cap; delivery is free up to "
-            "2 km, then ₹10 per started 2 km slab."
+            "Maximum delivery distance in km. Delivery is available up to 4 km only; "
+            "free up to 2 km, then ₹10 per started 2 km slab."
         ),
     )
 

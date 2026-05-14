@@ -21,7 +21,7 @@ class DeliveryFeeTests(TestCase):
         site = SiteSettings.get()
         site.delivery_center_lat = 0
         site.delivery_center_lng = 0
-        site.delivery_radius_km = 2
+        site.delivery_radius_km = 4
         site.pickup_enabled = True
         site.save()
 
@@ -61,7 +61,7 @@ class OrderRuleTests(TestCase):
         site = SiteSettings.get()
         site.delivery_center_lat = 0
         site.delivery_center_lng = 0
-        site.delivery_radius_km = 2
+        site.delivery_radius_km = 4
         site.pickup_enabled = True
         site.save()
         self.area = DeliveryArea.objects.create(name="Test Area", is_active=True)
@@ -104,6 +104,40 @@ class OrderRuleTests(TestCase):
 
         self.assertFalse(is_valid)
         self.assertIn("Lunch tiffin orders close at 10:30 AM.", form.errors["meal_time"])
+
+    def test_same_day_after_lunch_cutoff_allows_only_dinner(self):
+        plan = self.make_plan(category=Plan.Category.TIFFIN)
+        now = timezone.make_aware(datetime.combine(date.today(), datetime.strptime("10:31", "%H:%M").time()))
+
+        with patch("tiffin.forms.timezone.localtime", return_value=now):
+            dinner_form = OrderForm(data=self.form_data(
+                plan,
+                delivery_date=now.date().isoformat(),
+                meal_time=Order.MealTime.DINNER,
+            ))
+            both_form = OrderForm(data=self.form_data(
+                plan,
+                delivery_date=now.date().isoformat(),
+                meal_time=Order.MealTime.BOTH,
+            ))
+
+            dinner_valid = dinner_form.is_valid()
+            both_valid = both_form.is_valid()
+
+        self.assertTrue(dinner_valid, dinner_form.errors.as_text())
+        self.assertFalse(both_valid)
+        self.assertIn("Lunch + Dinner tiffin orders close at 10:30 AM", both_form.errors["meal_time"][0])
+
+    def test_delivery_is_rejected_beyond_four_km(self):
+        plan = self.make_plan(category=Plan.Category.TIFFIN)
+        form = OrderForm(data=self.form_data(
+            plan,
+            delivery_date=(date.today() + timedelta(days=1)).isoformat(),
+            location_url="https://maps.google.com/?q=0.045000,0.000000",
+        ))
+
+        self.assertFalse(form.is_valid())
+        self.assertIn("deliver only within 4 km", form.errors["location_url"][0])
 
     def test_monthly_lunch_or_dinner_uses_single_meal_price(self):
         plan = self.make_plan(

@@ -6,7 +6,7 @@ from django import forms
 from django.utils import timezone
 
 from .catalog import visible_plans
-from .geo import FREE_DELIVERY_KM, delivery_fee_for_distance, extract_coords, haversine_km
+from .geo import MAX_DELIVERY_KM, delivery_fee_for_distance, extract_coords, haversine_km
 from .models import Addon, DeliveryArea, Order, Plan, SiteSettings
 
 PHONE_RE = re.compile(r"^[0-9+\-\s]{7,20}$")
@@ -171,7 +171,7 @@ class OrderForm(forms.ModelForm):
             if not cleaned.get("area"):
                 self.add_error("area", "Please choose a delivery area.")
 
-            # --- Distance-based delivery fee + optional max radius ----------
+            # --- Distance-based delivery fee + 4 km max delivery radius ----
             url = cleaned.get("location_url") or ""
             if has_kitchen:
                 if not url:
@@ -186,12 +186,11 @@ class OrderForm(forms.ModelForm):
                     )
                     self._delivery_distance_km = dist
                     self._delivery_fee = delivery_fee_for_distance(dist)
-                    radius = float(site.delivery_radius_km)
-                    if radius > FREE_DELIVERY_KM and dist > radius:
+                    if dist > MAX_DELIVERY_KM:
                         self.add_error(
                             "location_url",
                             f"Sorry — delivery is not available at this location. "
-                            f"It's {dist:.1f} km from our kitchen, but we deliver only within {radius:.0f} km. "
+                            f"It's {dist:.1f} km from our kitchen, but we deliver only within {MAX_DELIVERY_KM:.0f} km. "
                             f"You can choose 'Pick up from counter' instead."
                         )
         else:  # pickup

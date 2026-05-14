@@ -1,4 +1,5 @@
 {% extends "tiffin/base.html" %}
+{% load static %}
 {% block title %}Order Tiffin Online — {{ SITE.business_name }}{% endblock %}
 {% block description %}Order homemade tiffin, today's rice bowl, or group snacks online. Daily Tiffin at ₹70, rice bowl at ₹60, monthly package from ₹1800. Fresh, vegetarian, FSSAI-compliant.{% endblock %}
 
@@ -18,10 +19,15 @@
         data-pickup-hours="{{ SITE.hours|escape }}"
         data-kitchen-lat="{{ SITE.delivery_center_lat|default_if_none:'' }}"
         data-kitchen-lng="{{ SITE.delivery_center_lng|default_if_none:'' }}"
-        data-delivery-radius-km="{{ SITE.delivery_radius_km|default_if_none:'0' }}"
+        data-delivery-radius-km="{{ max_delivery_km }}"
+        data-max-delivery-km="{{ max_delivery_km }}"
         data-delivery-free-km="2"
         data-delivery-fee-slab-km="2"
         data-delivery-fee-per-slab="10"
+        data-current-date="{{ order_today_iso }}"
+        data-current-minutes="{{ order_current_minutes }}"
+        data-lunch-cutoff-minutes="{{ tiffin_lunch_cutoff_minutes }}"
+        data-dinner-cutoff-minutes="{{ tiffin_dinner_cutoff_minutes }}"
         data-business-name="{{ SITE.short_name|escape }}">
     {% csrf_token %}
 
@@ -50,6 +56,11 @@
                    data-plan-unit="{{ plan.unit|escape }}">
               <input type="radio" name="plan_pick" value="{{ plan.id }}" {% if form.plan.value|stringformat:"s" == plan.id|stringformat:"s" %}checked{% endif %}>
               <span class="plan-pick-inner">
+                {% with plan_img='img/'|add:plan.image_path_webp %}
+                  <span class="plan-pick-media">
+                    <img src="{% static plan_img %}" alt="{{ plan.name }}" loading="lazy" width="320" height="180">
+                  </span>
+                {% endwith %}
                 {% if plan.badge %}<span class="plan-badge">{{ plan.badge }}</span>{% endif %}
                 <span class="plan-category">{{ plan.category_label }}</span>
                 <span class="plan-pick-name">{{ plan.name }}</span>
@@ -74,7 +85,7 @@
             <span class="method-card">
               <span class="method-icon" aria-hidden="true">🚚</span>
               <span class="method-title">Home delivery</span>
-              <span class="method-desc muted small">Free up to 2 km, then ₹10 per 2 km</span>
+              <span class="method-desc muted small">Free up to 2 km, then ₹10 per 2 km. Max 4 km.</span>
             </span>
           </label>
           <label class="method-option">
@@ -126,7 +137,7 @@
               <span class="loc-trigger-text">
                 <span class="loc-trigger-empty" data-loc-empty>
                   <strong>Set your delivery location</strong>
-                  <span class="muted small">Free up to 2 km, then ₹10 per 2 km</span>
+                  <span class="muted small">Free up to 2 km, then ₹10 per 2 km. Max 4 km.</span>
                 </span>
                 <span class="loc-trigger-set" data-loc-set hidden>
                   <strong data-loc-summary></strong>
@@ -173,6 +184,7 @@
           <div class="form-row" data-meal-time-row>
             <label for="{{ form.meal_time.id_for_label }}">Meal time <span class="req">*</span></label>
             {{ form.meal_time }}
+            <small id="meal-window-hint" class="hint" hidden></small>
             <small id="multiplier-hint" class="hint" hidden>Lunch + Dinner doubles the meal count.</small>
             {% if form.meal_time.errors %}<div class="field-error">{{ form.meal_time.errors|join:" " }}</div>{% endif %}
           </div>

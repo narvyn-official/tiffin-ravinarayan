@@ -61,6 +61,7 @@
   const missingPluralEl = $("[data-missing-plural]");
   const formAlert = $("#form-alert");
   const multiplierHint = $("#multiplier-hint");
+  const mealWindowHint = $("#meal-window-hint");
   const quantityHint = $("#quantity-hint");
   const mealTimeRow = $("[data-meal-time-row]");
 
@@ -79,10 +80,27 @@
   const deliveryFreeKm = Number(form.dataset.deliveryFreeKm) || 2;
   const deliveryFeeSlabKm = Number(form.dataset.deliveryFeeSlabKm) || 2;
   const deliveryFeePerSlab = Number(form.dataset.deliveryFeePerSlab) || 10;
+  const maxDeliveryKm = Number(form.dataset.maxDeliveryKm) || 4;
+  const currentDateIso = form.dataset.currentDate || "";
+  const renderedCurrentMinutes = Number(form.dataset.currentMinutes) || 0;
+  const renderedAtMs = Date.now();
+  const lunchCutoffMinutes = Number(form.dataset.lunchCutoffMinutes) || (10 * 60 + 30);
+  const dinnerCutoffMinutes = Number(form.dataset.dinnerCutoffMinutes) || (19 * 60 + 30);
 
   const fmt = (n) => "₹" + Math.max(0, Math.round(n)).toLocaleString("en-IN");
 
   // ---- helpers ---------------------------------------------------------
+  function localDateIso(date) {
+    const y = date.getFullYear();
+    const m = String(date.getMonth() + 1).padStart(2, "0");
+    const d = String(date.getDate()).padStart(2, "0");
+    return `${y}-${m}-${d}`;
+  }
+
+  function effectiveCurrentMinutes() {
+    return renderedCurrentMinutes + Math.floor((Date.now() - renderedAtMs) / 60000);
+  }
+
   function getMethod() {
     const r = $('input[name="delivery_method"]:checked');
     return r ? r.value : "delivery";
@@ -305,9 +323,66 @@
     }
 
     if (dateInput && plan && (plan.category === "rice_bowl" || plan.category === "snack")) {
-      const today = new Date(); today.setHours(0,0,0,0);
-      dateInput.value = today.toISOString().slice(0, 10);
+      dateInput.value = currentDateIso || localDateIso(new Date());
       syncDateChips();
+    }
+
+    updateMealAvailability();
+  }
+
+  function setMealOptionsDisabled(disabledValues) {
+    if (!mealTimeSelect) return;
+    const disabled = new Set(disabledValues);
+    Array.from(mealTimeSelect.options).forEach((option) => {
+      option.disabled = disabled.has(option.value);
+    });
+  }
+
+  function selectedMealWindowMessage() {
+    const plan = getSelectedPlan();
+    if (!isTiffinPlan(plan) || !dateInput || dateInput.value !== currentDateIso) return "";
+
+    const minutes = effectiveCurrentMinutes();
+    const meal = mealTimeSelect ? mealTimeSelect.value : "";
+    if (minutes >= dinnerCutoffMinutes) {
+      return "Tiffin ordering is closed for today. Please choose another date.";
+    }
+    if (minutes >= lunchCutoffMinutes && (meal === "lunch" || meal === "both")) {
+      return "Lunch ordering is closed for today. Please choose Dinner or another date.";
+    }
+    return "";
+  }
+
+  function updateMealAvailability() {
+    const plan = getSelectedPlan();
+    if (!mealTimeSelect || !isTiffinPlan(plan)) {
+      setMealOptionsDisabled([]);
+      if (mealWindowHint) mealWindowHint.hidden = true;
+      return;
+    }
+
+    const isToday = dateInput && dateInput.value === currentDateIso;
+    const minutes = effectiveCurrentMinutes();
+    let message = "";
+    setMealOptionsDisabled([]);
+
+    if (isToday && minutes >= dinnerCutoffMinutes) {
+      setMealOptionsDisabled(["lunch", "dinner", "both"]);
+      mealTimeSelect.selectedIndex = -1;
+      message = "Tiffin ordering is closed for today. Choose tomorrow or a later date.";
+    } else if (isToday && minutes >= lunchCutoffMinutes) {
+      setMealOptionsDisabled(["lunch", "both"]);
+      if (mealTimeSelect.value === "lunch" || mealTimeSelect.value === "both") {
+        mealTimeSelect.value = "dinner";
+      }
+      message = "Lunch is closed for today. Dinner orders are open until 7:30 PM.";
+    } else if (isToday) {
+      message = "Lunch closes at 10:30 AM. Dinner closes at 7:30 PM.";
+    }
+
+    if (mealWindowHint) {
+      mealWindowHint.hidden = !message;
+      mealWindowHint.textContent = message;
     }
   }
 
@@ -349,29 +424,35 @@
   const dateChipsWrap = $("[data-date-chips]");
   function syncDateChips() {
     if (!dateInput || !dateChipsWrap) return;
-    const today = new Date(); today.setHours(0,0,0,0);
+    const today = currentDateIso ? new Date(`${currentDateIso}T00:00:00`) : new Date();
+    today.setHours(0,0,0,0);
     const v = dateInput.value;
     dateChipsWrap.querySelectorAll(".date-chip").forEach((c) => {
       const offset = parseInt(c.dataset.dayOffset, 10);
       const d = new Date(today); d.setDate(d.getDate() + offset);
-      const iso = d.toISOString().slice(0, 10);
+      const iso = localDateIso(d);
       c.classList.toggle("is-active", v === iso);
     });
   }
   if (dateChipsWrap) {
     dateChipsWrap.querySelectorAll(".date-chip").forEach((chip) => {
       chip.addEventListener("click", () => {
-        const today = new Date(); today.setHours(0,0,0,0);
+        const today = currentDateIso ? new Date(`${currentDateIso}T00:00:00`) : new Date();
+        today.setHours(0,0,0,0);
         const offset = parseInt(chip.dataset.dayOffset, 10);
         const d = new Date(today); d.setDate(d.getDate() + offset);
         if (dateInput) {
-          dateInput.value = d.toISOString().slice(0, 10);
+          dateInput.value = localDateIso(d);
           dateInput.dispatchEvent(new Event("input", { bubbles: true }));
         }
         syncDateChips();
       });
     });
-    if (dateInput) dateInput.addEventListener("input", syncDateChips);
+    if (dateInput) dateInput.addEventListener("input", () => {
+      syncDateChips();
+      applyPlanControls();
+      recompute();
+    });
     syncDateChips();
   }
 
@@ -415,6 +496,18 @@
   }
   form.addEventListener("submit", (e) => {
     clearFieldHighlights();
+    updateMealAvailability();
+    const windowMessage = selectedMealWindowMessage();
+    if (windowMessage) {
+      e.preventDefault();
+      if (mealTimeSelect) {
+        mealTimeSelect.classList.add("field-invalid");
+        mealTimeSelect.scrollIntoView({ behavior: "smooth", block: "center" });
+        setTimeout(() => mealTimeSelect.focus({ preventScroll: true }), 350);
+      }
+      showAlert(windowMessage);
+      return;
+    }
     const missing = buildRequired().filter((r) => !isFilled(r.input));
     if (missing.length === 0) return;
     e.preventDefault();
@@ -461,9 +554,9 @@
   // Kitchen + radius from form data attributes (set in template)
   const kLat = parseFloat(form.dataset.kitchenLat);
   const kLng = parseFloat(form.dataset.kitchenLng);
-  const kRadius = parseFloat(form.dataset.deliveryRadiusKm) || 0;
+  const kRadius = maxDeliveryKm;
   const hasKitchen = !isNaN(kLat) && !isNaN(kLng);
-  const hasMaxDeliveryRadius = kRadius > deliveryFreeKm;
+  const hasMaxDeliveryRadius = maxDeliveryKm > 0;
 
   function haversineKm(lat1, lng1, lat2, lng2) {
     const R = 6371, toRad = (d) => d * Math.PI / 180;

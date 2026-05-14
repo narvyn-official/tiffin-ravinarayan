@@ -12,7 +12,7 @@ from datetime import date
 
 from django.urls import reverse
 
-from .geo import FREE_DELIVERY_KM
+from .geo import MAX_DELIVERY_KM
 
 
 # ---------- meta-tag helpers ----------------------------------------------
@@ -70,13 +70,11 @@ def _service_area(site, areas) -> list[dict]:
     if (
         site.delivery_center_lat
         and site.delivery_center_lng
-        and site.delivery_radius_km
-        and float(site.delivery_radius_km) > FREE_DELIVERY_KM
     ):
         items.append({
             "@type": "GeoCircle",
             "geoMidpoint": _geo(site),
-            "geoRadius": float(site.delivery_radius_km) * 1000,  # metres
+            "geoRadius": MAX_DELIVERY_KM * 1000,  # metres
         })
     for a in areas:
         items.append({"@type": "Place", "name": f"{a.name}, {site.city}"})
