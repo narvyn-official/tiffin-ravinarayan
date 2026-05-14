@@ -32,6 +32,17 @@ def _split_lines(text: str) -> list[str]:
     return [ln.strip() for ln in text.splitlines() if ln.strip()]
 
 
+DAY_CHOICES = [
+    (0, "Monday"),
+    (1, "Tuesday"),
+    (2, "Wednesday"),
+    (3, "Thursday"),
+    (4, "Friday"),
+    (5, "Saturday"),
+    (6, "Sunday"),
+]
+
+
 # --- site-wide settings (singleton) ----------------------------------------
 
 class SiteSettings(models.Model):
@@ -85,8 +96,8 @@ class SiteSettings(models.Model):
         max_length=320, blank=True,
         default=(
             "Fresh homemade veg tiffin service in Jhajjar — Metcity, Yakubpur, "
-            "Bahadurgarh & Farrukhnagar. Daily lunch & dinner at ₹70 per meal or "
-            "₹3200 per month. Lunch by 1 PM, dinner by 8:30 PM. FSSAI compliant. "
+            "Bahadurgarh & Farrukhnagar. Daily tiffin from ₹70, monthly packages from "
+            "₹1800, and today's rice bowl at ₹60. FSSAI compliant. "
             "Order on WhatsApp."
         ),
         help_text="160-300 chars. Used as the site-wide default meta description.",
@@ -103,7 +114,10 @@ class SiteSettings(models.Model):
     )
     delivery_radius_km = models.DecimalField(
         max_digits=5, decimal_places=2, default=0,
-        help_text="Maximum delivery distance in km. 0 = no geofence (only the area dropdown is enforced).",
+        help_text=(
+            "Maximum delivery distance in km. 0 or 2 = no hard cap; delivery is free up to "
+            "2 km, then ₹10 per started 2 km slab."
+        ),
     )
 
     # --- Pickup option ---
@@ -153,18 +167,41 @@ class DeliveryArea(models.Model):
 # --- plans ------------------------------------------------------------------
 
 class Plan(models.Model):
+    class Category(models.TextChoices):
+        TIFFIN = "tiffin", "Tiffin"
+        RICE_BOWL = "rice_bowl", "Rice bowl"
+        SNACK = "snack", "Snack"
+
     UNIT_CHOICES = [
         ("per meal", "per meal"),
         ("per month", "per month"),
         ("per week", "per week"),
         ("per meal (10+ qty)", "per meal (10+ qty)"),
+        ("per bowl", "per bowl"),
+        ("per piece", "per piece"),
+        ("price on request", "price on request"),
     ]
 
     slug = models.SlugField(max_length=60, unique=True)
     name = models.CharField(max_length=80)
+    category = models.CharField(
+        max_length=20, choices=Category.choices, default=Category.TIFFIN, db_index=True,
+    )
     tagline = models.CharField(max_length=160, blank=True)
     price = models.PositiveIntegerField(help_text="In ₹.")
+    price_on_request = models.BooleanField(default=False)
+    monthly_single_meal_price = models.PositiveIntegerField(
+        null=True, blank=True,
+        help_text="Optional monthly price when customer chooses only lunch or only dinner.",
+    )
     unit = models.CharField(max_length=40, choices=UNIT_CHOICES, default="per meal")
+    min_quantity = models.PositiveIntegerField(default=1)
+    available_day_of_week = models.PositiveSmallIntegerField(
+        choices=DAY_CHOICES, null=True, blank=True,
+        help_text="For day-specific plans such as rice bowls.",
+    )
+    order_start_time = models.TimeField(null=True, blank=True)
+    order_cutoff_time = models.TimeField(null=True, blank=True)
     items = models.TextField(
         help_text="One line per item. e.g.\n4 Roti\nSabzi\nDal\nRice\nSalad",
     )
@@ -183,7 +220,8 @@ class Plan(models.Model):
         ordering = ("sort_order", "id")
 
     def __str__(self) -> str:
-        return f"{self.name} (₹{self.price} {self.unit})"
+        price = "price on request" if self.price_on_request else f"₹{self.price} {self.unit}"
+        return f"{self.name} ({price})"
 
     @property
     def items_list(self) -> list[str]:
@@ -201,6 +239,37 @@ class Plan(models.Model):
         if base.lower().endswith((".png", ".jpg", ".jpeg")):
             return base.rsplit(".", 1)[0] + ".webp"
         return base
+
+    @property
+    def price_label(self) -> str:
+        if self.price_on_request:
+            return "On request"
+        return f"₹{self.price}"
+
+    @property
+    def category_label(self) -> str:
+        return self.get_category_display()
+
+    @property
+    def availability_label(self) -> str:
+        if self.category == self.Category.RICE_BOWL:
+            day = self.get_available_day_of_week_display() if self.available_day_of_week is not None else "Today"
+            return f"{day} only · 9 AM to 9 PM"
+        if self.category == self.Category.SNACK:
+            return f"Minimum {self.min_quantity} pcs · price on request"
+        return "Lunch cutoff 10:30 AM · dinner cutoff 7:30 PM"
+
+    def price_for_meal_time(self, meal_time: str) -> int:
+        if self.price_on_request:
+            return 0
+        if (
+            self.category == self.Category.TIFFIN
+            and self.unit == "per month"
+            and self.monthly_single_meal_price
+            and meal_time in {Order.MealTime.LUNCH, Order.MealTime.DINNER}
+        ):
+            return self.monthly_single_meal_price
+        return self.price
 
 
 # --- addons -----------------------------------------------------------------
@@ -228,15 +297,6 @@ class Addon(models.Model):
 # --- daily menu -------------------------------------------------------------
 
 class DailyMenu(models.Model):
-    DAY_CHOICES = [
-        (0, "Monday"),
-        (1, "Tuesday"),
-        (2, "Wednesday"),
-        (3, "Thursday"),
-        (4, "Friday"),
-        (5, "Saturday"),
-        (6, "Sunday"),
-    ]
     MEAL_LUNCH = "lunch"
     MEAL_DINNER = "dinner"
     MEAL_CHOICES = [(MEAL_LUNCH, "Lunch"), (MEAL_DINNER, "Dinner")]
@@ -290,6 +350,7 @@ class Order(models.Model):
     plan_slug = models.CharField(max_length=60)
     plan_name = models.CharField(max_length=80)
     plan_price = models.PositiveIntegerField()
+    plan_price_on_request = models.BooleanField(default=False)
     plan_unit = models.CharField(max_length=40, blank=True,
                                   help_text="Snapshot of plan unit at order time (e.g. 'per meal').")
 
@@ -299,6 +360,8 @@ class Order(models.Model):
     notes = models.CharField(max_length=300, blank=True)
     # Optional Google Maps link captured from the customer's device geolocation.
     location_url = models.URLField(max_length=300, blank=True)
+    delivery_distance_km = models.DecimalField(max_digits=6, decimal_places=2, null=True, blank=True)
+    delivery_fee = models.PositiveIntegerField(default=0)
 
     # Snapshot of selected add-ons: [{"name": "Curd", "price": 30, "qty": 2}, ...]
     addons = models.JSONField(default=list, blank=True)

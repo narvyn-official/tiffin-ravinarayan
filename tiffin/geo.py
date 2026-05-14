@@ -2,6 +2,10 @@
 import math
 import re
 
+FREE_DELIVERY_KM = 2
+DELIVERY_FEE_SLAB_KM = 2
+DELIVERY_FEE_PER_SLAB = 10
+
 # Match `?q=lat,lng`, `&q=lat,lng`, `@lat,lng,zoom`, `?ll=lat,lng`, `&center=lat,lng`
 COORD_RE = re.compile(
     r"[?&@](?:q=|ll=|center=|loc=)?(-?\d{1,2}\.\d+),\s*(-?\d{1,3}\.\d+)"
@@ -40,3 +44,11 @@ def haversine_km(lat1: float, lng1: float, lat2: float, lng2: float) -> float:
     dlng = lng2 - lng1
     a = math.sin(dlat / 2) ** 2 + math.cos(lat1) * math.cos(lat2) * math.sin(dlng / 2) ** 2
     return 2 * R * math.asin(math.sqrt(a))
+
+
+def delivery_fee_for_distance(distance_km: float | None) -> int:
+    """Free for the first 2 km, then ₹10 per started 2 km slab."""
+    if distance_km is None or distance_km <= FREE_DELIVERY_KM:
+        return 0
+    extra_km = distance_km - FREE_DELIVERY_KM
+    return math.ceil(extra_km / DELIVERY_FEE_SLAB_KM) * DELIVERY_FEE_PER_SLAB

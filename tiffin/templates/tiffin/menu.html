@@ -6,13 +6,13 @@
 <section class="section section-page-head">
   <div class="container">
     <h1>Tiffin Plans &amp; Pricing — {{ SITE.city }}</h1>
-    <p class="muted">Two simple, honest plans. Pick a tiffin plan that fits your day. No hidden charges in listed delivery areas.</p>
+    <p class="muted">Tiffin plans, today's rice bowl, and group snack orders. Delivery is free up to 2 km, then ₹10 per 2 km slab.</p>
   </div>
 </section>
 
 <section class="section">
   <div class="container">
-    <div class="plans-grid plans-2">
+    <div class="plans-grid">
       {% for plan in plans %}
         {% include "tiffin/components/plan_card.html" with plan=plan %}
       {% endfor %}
@@ -21,8 +21,8 @@
     <div class="plans-prose">
       <h2>Which tiffin plan should I choose?</h2>
       <p>Our <strong>Daily Tiffin at ₹70 per meal</strong> is the right pick if you're trying us out, ordering occasionally, or sharing across an office team. You pay only for what you order; no commitments. Each tiffin includes 4 roti, sabzi, dal, rice and salad — a balanced homestyle meal that's filling but not heavy.</p>
-      <p>The <strong>PG Monthly Plan at ₹3200 per month</strong> is built for students, PG residents and working professionals who want both lunch and dinner every day with predictable pricing. The plan includes weekly menu rotation and a special meal once a week. Works out to roughly ₹53 per meal — the best value we offer.</p>
-      <p>Need something custom? Bulk corporate orders and warehouse tiffin contracts are welcome — just reach out on WhatsApp with your requirement.</p>
+      <p>The <strong>PG Monthly Plan at ₹3500 per month</strong> is built for students, PG residents and working professionals who want both lunch and dinner every day with predictable pricing. If you need only lunch or only dinner, the monthly package is <strong>₹1800 per month</strong>.</p>
+      <p>Rice bowls are available day-wise from 9 AM to 9 PM at ₹60. Samosa, Bread and Burger are available on order with a minimum order of 15 pcs; final snack pricing is confirmed on WhatsApp.</p>
     </div>
   </div>
 </section>

@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 540" role="img" aria-label="Rajma rice bowl with salad">
+  <rect width="960" height="540" fill="#fbebe8"/>
+  <circle cx="724" cy="134" r="90" fill="#a33030" opacity=".16"/>
+  <circle cx="212" cy="164" r="72" fill="#2f8f46" opacity=".13"/>
+  <ellipse cx="488" cy="318" rx="282" ry="132" fill="#fffaf0" stroke="#2d2014" stroke-width="8"/>
+  <ellipse cx="488" cy="292" rx="232" ry="92" fill="#f6eadf"/>
+  <path d="M302 285c90-66 274-70 378 0-25 54-88 82-191 82s-164-28-187-82z" fill="#ffffff"/>
+  <path d="M358 254c72-45 204-45 267 3-46 45-216 46-267-3z" fill="#8b2d2c"/>
+  <ellipse cx="420" cy="284" rx="19" ry="13" fill="#5e1719"/><ellipse cx="500" cy="258" rx="19" ry="13" fill="#5e1719"/><ellipse cx="585" cy="294" rx="19" ry="13" fill="#5e1719"/>
+  <path d="M656 224c38 8 72 29 96 58-55 34-112 26-154-13 13-27 32-42 58-45z" fill="#4f9d59"/>
+  <text x="88" y="96" fill="#2d2014" font-family="Arial, sans-serif" font-size="48" font-weight="800">WEDNESDAY</text>
+  <text x="88" y="156" fill="#8b2d2c" font-family="Arial, sans-serif" font-size="60" font-weight="900">RAJMA</text>
+  <text x="88" y="212" fill="#4d4a40" font-family="Arial, sans-serif" font-size="30">Rice bowl + salad</text>
+</svg>

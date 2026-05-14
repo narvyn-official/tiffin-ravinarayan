@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 540" role="img" aria-label="Chhole rice bowl with salad">
+  <rect width="960" height="540" fill="#fff3df"/>
+  <circle cx="735" cy="132" r="86" fill="#cc7a23" opacity=".18"/>
+  <circle cx="214" cy="166" r="70" fill="#2f8f46" opacity=".14"/>
+  <ellipse cx="494" cy="318" rx="282" ry="132" fill="#fffaf0" stroke="#2d2014" stroke-width="8"/>
+  <ellipse cx="494" cy="292" rx="232" ry="92" fill="#f8ead0"/>
+  <path d="M304 285c84-68 272-75 382 0-24 54-89 83-194 83s-165-29-188-83z" fill="#ffffff"/>
+  <path d="M354 252c74-44 204-43 278 2-54 45-226 45-278-2z" fill="#9a5d24"/>
+  <circle cx="410" cy="280" r="15" fill="#d2a34e"/><circle cx="486" cy="255" r="16" fill="#d2a34e"/><circle cx="574" cy="290" r="15" fill="#d2a34e"/><circle cx="520" cy="312" r="14" fill="#d2a34e"/>
+  <path d="M660 224c38 8 72 29 96 58-55 34-112 26-154-13 13-27 32-42 58-45z" fill="#53a85d"/>
+  <text x="88" y="96" fill="#2d2014" font-family="Arial, sans-serif" font-size="48" font-weight="800">TUESDAY</text>
+  <text x="88" y="156" fill="#8a4d16" font-family="Arial, sans-serif" font-size="60" font-weight="900">CHHOLE</text>
+  <text x="88" y="212" fill="#4d4a40" font-family="Arial, sans-serif" font-size="30">Rice bowl + salad</text>
+</svg>

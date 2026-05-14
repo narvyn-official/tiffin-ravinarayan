@@ -59,7 +59,7 @@
                 {% for a in o.addons %}<div>{{ a.name }} × {{ a.qty }}</div>{% endfor %}
               {% else %}—{% endif %}
             </td>
-            <td><strong>₹{{ o.total_price }}</strong></td>
+            <td><strong>{% if o.plan_price_on_request %}Quote{% if o.total_price %} + ₹{{ o.total_price }}{% endif %}{% else %}₹{{ o.total_price }}{% endif %}</strong>{% if o.delivery_method == "delivery" and o.delivery_fee %}<div class="muted small">Delivery ₹{{ o.delivery_fee }}</div>{% endif %}</td>
             <td>{{ o.get_meal_time_display }}</td>
             <td>{{ o.delivery_date|date:"d M" }}</td>
             <td class="cell-address">{{ o.address }}, {{ o.area }}{% if o.location_url %}<div><a href="{{ o.location_url }}" target="_blank" rel="noopener" class="small">📍 Map</a></div>{% endif %}{% if o.notes %}<div class="muted small">{{ o.notes }}</div>{% endif %}</td>

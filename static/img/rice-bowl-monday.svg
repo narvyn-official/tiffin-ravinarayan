@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 540" role="img" aria-label="Dal rice bowl with salad">
+  <rect width="960" height="540" fill="#f7efe2"/>
+  <circle cx="690" cy="135" r="88" fill="#2f8f46" opacity=".16"/>
+  <circle cx="238" cy="142" r="76" fill="#e59f31" opacity=".18"/>
+  <ellipse cx="480" cy="318" rx="280" ry="132" fill="#fffaf0" stroke="#2d2014" stroke-width="8"/>
+  <ellipse cx="480" cy="292" rx="230" ry="92" fill="#f7f1df"/>
+  <path d="M295 282c94-62 265-70 372 0-22 52-83 78-187 78s-164-26-185-78z" fill="#ffffff"/>
+  <path d="M346 252c70-42 196-45 270 0-46 43-227 45-270 0z" fill="#f4c247"/>
+  <circle cx="369" cy="295" r="10" fill="#a06024"/><circle cx="505" cy="270" r="9" fill="#a06024"/><circle cx="598" cy="302" r="11" fill="#a06024"/>
+  <path d="M656 225c34 6 69 24 93 52-48 35-108 29-152-8 14-28 34-43 59-44z" fill="#4f9d59"/>
+  <path d="M209 425h542" stroke="#2d2014" stroke-width="8" stroke-linecap="round" opacity=".18"/>
+  <text x="88" y="96" fill="#2d2014" font-family="Arial, sans-serif" font-size="48" font-weight="800">MONDAY</text>
+  <text x="88" y="156" fill="#9b5d10" font-family="Arial, sans-serif" font-size="60" font-weight="900">DAL BOWL</text>
+  <text x="88" y="212" fill="#4d4a40" font-family="Arial, sans-serif" font-size="30">Rice bowl + salad</text>
+</svg>

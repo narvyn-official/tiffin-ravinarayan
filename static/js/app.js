@@ -61,6 +61,8 @@
   const missingPluralEl = $("[data-missing-plural]");
   const formAlert = $("#form-alert");
   const multiplierHint = $("#multiplier-hint");
+  const quantityHint = $("#quantity-hint");
+  const mealTimeRow = $("[data-meal-time-row]");
 
   const sumMethodEl = $("[data-sum-method]");
   const sumPlanEl = $("[data-sum-plan]");
@@ -69,9 +71,14 @@
   const sumPlanTotalEl = $("[data-sum-plan-total]");
   const sumAddonsListEl = $("[data-sum-addons]");
   const sumAddonsTotalEl = $("[data-sum-addons-total]");
+  const sumDeliveryRow = $("[data-sum-delivery-row]");
+  const sumDeliveryFeeEl = $("[data-sum-delivery-fee]");
   const sumTotalEl = $("[data-sum-total]");
   const sumTotalMobileEl = $("[data-sum-total-mobile]");
   const mobilePlanEl = $("[data-mobile-plan]");
+  const deliveryFreeKm = Number(form.dataset.deliveryFreeKm) || 2;
+  const deliveryFeeSlabKm = Number(form.dataset.deliveryFeeSlabKm) || 2;
+  const deliveryFeePerSlab = Number(form.dataset.deliveryFeePerSlab) || 10;
 
   const fmt = (n) => "₹" + Math.max(0, Math.round(n)).toLocaleString("en-IN");
 
@@ -90,10 +97,24 @@
       id: checked.value,
       name: card.dataset.planName,
       price: Number(card.dataset.planPrice) || 0,
+      priceOnRequest: card.dataset.planPriceOnRequest === "1",
+      category: card.dataset.planCategory || "tiffin",
+      minQuantity: Math.max(1, Number(card.dataset.planMinQuantity) || 1),
+      singleMealPrice: Number(card.dataset.planSingleMealPrice) || 0,
       unit: card.dataset.planUnit || "",
     };
   }
   function isPerMealPlan(p) { return p && /per meal/i.test(p.unit); }
+  function isTiffinPlan(p) { return !p || p.category === "tiffin"; }
+
+  function unitPriceForPlan(plan) {
+    if (!plan || plan.priceOnRequest) return 0;
+    const mt = mealTimeSelect ? mealTimeSelect.value : "";
+    if (plan.category === "tiffin" && /per month/i.test(plan.unit) && plan.singleMealPrice && mt !== "both") {
+      return plan.singleMealPrice;
+    }
+    return plan.price;
+  }
 
   function mealMultiplier() {
     const plan = getSelectedPlan();
@@ -123,6 +144,9 @@
       { key: "meal_time",     label: "meal time",    input: $("#id_meal_time") },
       { key: "delivery_date", label: "delivery date",input: $("#id_delivery_date") },
     ];
+    if (isDelivery() && hasKitchen) {
+      list.push({ key: "location_url", label: "delivery location", input: $("#id_location_url"), scrollEl: $("[data-loc-open]") });
+    }
     if (isDelivery()) {
       list.push({ key: "address", label: "delivery address", input: $("#id_address") });
       list.push({ key: "area",    label: "delivery area",    input: $("#id_area") });
@@ -138,6 +162,30 @@
     return true;
   }
 
+  function deliveryFeeForDistance(distanceKm) {
+    if (distanceKm == null || distanceKm <= deliveryFreeKm) return 0;
+    return Math.ceil((distanceKm - deliveryFreeKm) / deliveryFeeSlabKm) * deliveryFeePerSlab;
+  }
+
+  function currentDeliveryDistanceKm() {
+    if (!isDelivery() || !hasKitchen || !locationField || !locationField.value) return null;
+    const coords = parseCoordsFromUrl(locationField.value);
+    if (!coords) return null;
+    return haversineKm(coords[0], coords[1], kLat, kLng);
+  }
+
+  function deliveryFeeSummary(distanceKm, fee) {
+    if (!hasKitchen) return fmt(0);
+    if (distanceKm == null) return "Set location";
+    return `${fmt(fee)}${fee === 0 ? " (free)" : ""}`;
+  }
+
+  function deliveryDistanceSummary(distanceKm) {
+    if (distanceKm == null) return "";
+    const fee = deliveryFeeForDistance(distanceKm);
+    return `${distanceKm.toFixed(1)} km · ${fee === 0 ? "Free delivery" : `${fmt(fee)} delivery charge`}`;
+  }
+
   // ---- recompute summary + validation hint -----------------------------
   function recompute() {
     const method = getMethod();
@@ -146,7 +194,9 @@
     const plan = getSelectedPlan();
     const qty = Math.max(1, parseInt(qtyInput && qtyInput.value, 10) || 1);
     const mult = mealMultiplier();
-    const planSubtotal = plan ? plan.price * qty * mult : 0;
+    const unitPrice = unitPriceForPlan(plan);
+    const planSubtotal = plan ? unitPrice * qty * mult : 0;
+    const priceOnRequest = Boolean(plan && plan.priceOnRequest);
 
     if (sumPlanEl) {
       sumPlanEl.textContent = plan
@@ -161,9 +211,17 @@
         sumMealsRow.hidden = true;
       }
     }
-    if (multiplierHint) multiplierHint.hidden = !(plan && isPerMealPlan(plan));
+    if (multiplierHint) {
+      if (plan && plan.category === "tiffin" && /per month/i.test(plan.unit) && plan.singleMealPrice) {
+        multiplierHint.hidden = false;
+        multiplierHint.textContent = `Lunch or dinner only is ₹${plan.singleMealPrice.toLocaleString("en-IN")}/month. Lunch + Dinner is ₹${plan.price.toLocaleString("en-IN")}/month.`;
+      } else {
+        multiplierHint.hidden = !(plan && isPerMealPlan(plan));
+        multiplierHint.textContent = "Lunch + Dinner doubles the meal count.";
+      }
+    }
 
-    if (sumPlanTotalEl) sumPlanTotalEl.textContent = fmt(planSubtotal);
+    if (sumPlanTotalEl) sumPlanTotalEl.textContent = priceOnRequest ? "On request" : fmt(planSubtotal);
 
     let addonsTotal = 0;
     if (sumAddonsListEl) sumAddonsListEl.innerHTML = "";
@@ -186,9 +244,19 @@
       }
     });
     if (sumAddonsTotalEl) sumAddonsTotalEl.textContent = fmt(addonsTotal);
-    const grand = planSubtotal + addonsTotal;
-    if (sumTotalEl) sumTotalEl.textContent = grand.toLocaleString("en-IN");
-    if (sumTotalMobileEl) sumTotalMobileEl.textContent = grand.toLocaleString("en-IN");
+
+    const deliveryDistance = currentDeliveryDistanceKm();
+    const deliveryFee = isDelivery() ? deliveryFeeForDistance(deliveryDistance) : 0;
+    if (sumDeliveryRow) sumDeliveryRow.hidden = !isDelivery();
+    if (sumDeliveryFeeEl) sumDeliveryFeeEl.textContent = deliveryFeeSummary(deliveryDistance, deliveryFee);
+
+    const grand = planSubtotal + addonsTotal + deliveryFee;
+    const knownTotal = addonsTotal + deliveryFee;
+    const totalLabel = priceOnRequest
+      ? (knownTotal > 0 ? `${fmt(knownTotal)} + quote` : "Quote on WhatsApp")
+      : fmt(grand);
+    if (sumTotalEl) sumTotalEl.textContent = totalLabel;
+    if (sumTotalMobileEl) sumTotalMobileEl.textContent = totalLabel;
     if (mobilePlanEl) {
       if (plan) {
         const mealNote = mult > 1 ? " · L+D" : "";
@@ -219,6 +287,30 @@
   const deliveryFields = $("#delivery-fields");
   const pickupInfo = $("#pickup-info");
 
+  function applyPlanControls() {
+    const plan = getSelectedPlan();
+    const tiffin = isTiffinPlan(plan);
+    if (mealTimeRow) mealTimeRow.hidden = !tiffin;
+    if (mealTimeSelect && !tiffin) mealTimeSelect.value = "lunch";
+
+    const minQty = plan ? plan.minQuantity : 1;
+    if (qtyInput) {
+      qtyInput.min = String(minQty);
+      const current = Math.max(1, parseInt(qtyInput.value, 10) || 1);
+      if (current < minQty) qtyInput.value = String(minQty);
+    }
+    if (quantityHint) {
+      quantityHint.hidden = minQty <= 1;
+      quantityHint.textContent = minQty > 1 ? `Minimum order ${minQty} pcs.` : "";
+    }
+
+    if (dateInput && plan && (plan.category === "rice_bowl" || plan.category === "snack")) {
+      const today = new Date(); today.setHours(0,0,0,0);
+      dateInput.value = today.toISOString().slice(0, 10);
+      syncDateChips();
+    }
+  }
+
   function applyMethodVisibility() {
     const pickup = !isDelivery();
     if (deliveryFields) deliveryFields.hidden = pickup;
@@ -237,6 +329,7 @@
     const input = label.querySelector("input");
     input.addEventListener("change", () => {
       if (planHidden) planHidden.value = input.value;
+      applyPlanControls();
       recompute();
       // On mobile only: smooth-scroll to step 2 after the user actively picks
       // a plan. Don't auto-scroll for the pre-selected default — that would
@@ -283,7 +376,7 @@
   }
 
   // Watch every required field so the live hint stays accurate
-  ["#id_full_name","#id_phone","#id_address","#id_area","#id_quantity",
+  ["#id_full_name","#id_phone","#id_location_url","#id_address","#id_area","#id_quantity",
    "#id_meal_time","#id_delivery_date"].forEach((sel) => {
     const el = $(sel);
     if (el) {
@@ -341,7 +434,7 @@
       ? `Please fill in your ${labels} before placing the order.`
       : `Please fill in: ${labels}.`);
   });
-  ["#id_full_name","#id_phone","#id_address","#id_area","#id_quantity",
+  ["#id_full_name","#id_phone","#id_location_url","#id_address","#id_area","#id_quantity",
    "#id_meal_time","#id_delivery_date"].forEach((sel) => {
     const el = $(sel);
     if (el) el.addEventListener("input", () => {
@@ -370,6 +463,7 @@
   const kLng = parseFloat(form.dataset.kitchenLng);
   const kRadius = parseFloat(form.dataset.deliveryRadiusKm) || 0;
   const hasKitchen = !isNaN(kLat) && !isNaN(kLng);
+  const hasMaxDeliveryRadius = kRadius > deliveryFreeKm;
 
   function haversineKm(lat1, lng1, lat2, lng2) {
     const R = 6371, toRad = (d) => d * Math.PI / 180;
@@ -403,8 +497,9 @@
     if (locSummary) locSummary.textContent = state.label || "Pinned location";
     if (locDistance) {
       if (state.dist != null) {
-        const inZone = (kRadius === 0 || state.dist <= kRadius);
-        locDistance.textContent = `${inZone ? "✓ We deliver here" : "✗ Outside zone"} · ${state.dist.toFixed(1)} km from kitchen`;
+        const inZone = (!hasMaxDeliveryRadius || state.dist <= kRadius);
+        const feeText = deliveryDistanceSummary(state.dist);
+        locDistance.textContent = `${inZone ? "✓ We deliver here" : "✗ Outside zone"} · ${feeText}`;
         locDistance.style.color = inZone ? "var(--green-700)" : "#8a1a1a";
       } else {
         locDistance.textContent = "📍 Saved";
@@ -502,19 +597,19 @@
     if (!userMarker) return;
     const ll = userMarker.getLatLng();
     const dist = hasKitchen ? haversineKm(ll.lat, ll.lng, kLat, kLng) : null;
-    const inZone = !hasKitchen || kRadius === 0 || (dist !== null && dist <= kRadius);
+    const inZone = !hasKitchen || !hasMaxDeliveryRadius || (dist !== null && dist <= kRadius);
 
     pendingState = { lat: ll.lat, lng: ll.lng, dist, inZone };
 
     // Status pill
-    if (dist !== null && kRadius > 0) {
+    if (dist !== null && hasMaxDeliveryRadius) {
       if (inZone) {
-        setStatus(`✓ We deliver here · ${dist.toFixed(1)} km away`, "in");
+        setStatus(`✓ We deliver here · ${deliveryDistanceSummary(dist)}`, "in");
       } else {
         setStatus(`✗ Outside delivery zone · ${dist.toFixed(1)} km (we deliver up to ${kRadius} km)`, "out");
       }
     } else {
-      setStatus(`📍 Pinned · ${dist !== null ? dist.toFixed(1) + " km" : "set"}`, "in");
+      setStatus(`📍 Pinned · ${dist !== null ? deliveryDistanceSummary(dist) : "set"}`, "in");
     }
 
     if (modalAddress) modalAddress.textContent = "Looking up address…";
@@ -559,9 +654,9 @@
       });
       kitchenMarker = L.marker([kLat, kLng], { icon: kIcon, interactive: false }).addTo(map);
 
-      if (kRadius > 0) {
+      if (hasMaxDeliveryRadius || deliveryFreeKm > 0) {
         zoneCircle = L.circle([kLat, kLng], {
-          radius: kRadius * 1000,
+          radius: (hasMaxDeliveryRadius ? kRadius : deliveryFreeKm) * 1000,
           color: "#1f7a3a", weight: 1.5, opacity: .8,
           fillColor: "#2e9d4d", fillOpacity: .07,
           interactive: false,
@@ -747,5 +842,6 @@
   }
 
   applyMethodVisibility();
+  applyPlanControls();
   recompute();
 })();

@@ -1,4 +1,3 @@
-from datetime import date
 from urllib.parse import quote
 
 from django.contrib import messages
@@ -7,11 +6,13 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
+from django.utils import timezone
 from django.utils.decorators import method_decorator
 from django.views.decorators.cache import cache_control
 from django.views.decorators.http import require_GET, require_http_methods, require_POST
 
 from . import seo
+from .catalog import visible_plans
 from .forms import OrderForm
 from .models import Addon, DailyMenu, DeliveryArea, Order, Plan, SiteSettings
 
@@ -26,8 +27,8 @@ FAQS = [
     (
         "What's the price of one tiffin?",
         "₹70 per meal for the Daily Tiffin (4 roti, sabzi, dal, rice, salad). For long-term "
-        "subscribers, our PG Monthly Plan is ₹3200 per month — works out to a big saving over "
-        "ordering daily."
+        "subscribers, our PG Monthly Plan is ₹3500 per month for lunch + dinner, or ₹1800 per "
+        "month for either lunch or dinner."
     ),
     (
         "Do you deliver near me?",
@@ -67,7 +68,7 @@ FAQS = [
 WHY_CHOOSE_US = [
     {"icon": "🌿", "title": "Fresh Daily", "text": "Cooked the same morning — never reheated from yesterday."},
     {"icon": "🛡", "title": "Hygienic Kitchen", "text": "FSSAI norms, sealed containers, gloves and head-caps."},
-    {"icon": "₹",  "title": "Affordable", "text": "Honest pricing. No hidden charges in listed areas."},
+    {"icon": "₹",  "title": "Affordable", "text": "Delivery is free up to 2 km, then ₹10 per 2 km slab."},
     {"icon": "⏱", "title": "On Time", "text": "Lunch by 1 PM, dinner by 8:30 PM — every day."},
     {"icon": "❤️", "title": "Homestyle Taste", "text": "Less oil, balanced spice — like ghar ka khaana."},
     {"icon": "📞", "title": "Easy to Order", "text": "Order on WhatsApp or in 30 seconds on this site."},
@@ -76,7 +77,7 @@ WHY_CHOOSE_US = [
 
 def _todays_menu():
     """One query for both meals, cheaper than two filtered .first() calls."""
-    dow = date.today().weekday()
+    dow = timezone.localdate().weekday()
     rows = list(DailyMenu.objects.filter(day_of_week=dow, is_active=True))
     lunch = next((r for r in rows if r.meal_time == DailyMenu.MEAL_LUNCH), None)
     dinner = next((r for r in rows if r.meal_time == DailyMenu.MEAL_DINNER), None)
@@ -96,7 +97,7 @@ def _set_anonymous_cache(response, max_age=120):
 def home(request):
     lunch, dinner = _todays_menu()
     site = SiteSettings.get()
-    plans = list(Plan.objects.filter(is_active=True))
+    plans = list(visible_plans())
     areas = list(DeliveryArea.objects.filter(is_active=True))
 
     # JSON-LD for SEO: a restaurant snippet, today's menu, and an FAQ page
@@ -114,7 +115,7 @@ def home(request):
         "plans": plans,
         "todays_lunch": lunch,
         "todays_dinner": dinner,
-        "today_label": date.today().strftime("%A, %d %b"),
+        "today_label": timezone.localdate().strftime("%A, %d %b"),
         "why_choose_us": WHY_CHOOSE_US,
         "areas": areas,
         "faqs": FAQS,
@@ -126,8 +127,8 @@ def home(request):
         # ~150 chars meta description
         "page_description": (
             f"Fresh homemade veg tiffin in {site.city}"
-            f"{' (' + area_names + ')' if area_names else ''}. ₹70 per meal or ₹3200/month. "
-            f"Hot, hygienic, FSSAI compliant. Order on WhatsApp."
+            f"{' (' + area_names + ')' if area_names else ''}. Tiffin from ₹70, monthly from ₹1800, "
+            f"and today's rice bowl at ₹60."
         ),
         "jsonld_blobs": [seo.dump(j) for j in jsonld if j],
         "canonical_url": seo.canonical(request),
@@ -140,7 +141,7 @@ def home(request):
 
 def menu(request):
     site = SiteSettings.get()
-    plans = list(Plan.objects.filter(is_active=True))
+    plans = list(visible_plans())
     areas = list(DeliveryArea.objects.filter(is_active=True))
     jsonld = [
         seo.restaurant_jsonld(request, site, areas, plans),
@@ -152,11 +153,11 @@ def menu(request):
     response = render(request, "tiffin/menu.html", {
         "plans": plans,
         # ≤60 chars
-        "page_title": f"Tiffin Plans — ₹70 / meal · ₹3200 / month | {site.short_name}",
+        "page_title": f"Tiffin Plans — ₹70 Meals · ₹60 Rice Bowls | {site.short_name}",
         # ~150 chars
         "page_description": (
-            f"Two simple tiffin plans: Daily Tiffin at ₹70 per meal and PG Monthly at "
-            f"₹3200/month. Fresh, homemade vegetarian meals — delivered in {site.city}."
+            f"Daily Tiffin at ₹70, PG monthly from ₹1800, today's rice bowl at ₹60, "
+            f"and group snacks on order in {site.city}."
         ),
         "jsonld_blobs": [seo.dump(j) for j in jsonld if j],
         "canonical_url": seo.canonical(request),
@@ -190,21 +191,24 @@ def robots_txt(request):
 
 @require_http_methods(["GET", "POST"])
 def order(request):
-    plans = list(Plan.objects.filter(is_active=True))
+    plans = list(visible_plans())
     addons = list(Addon.objects.filter(is_active=True))
 
     initial = {}
     plan_slug = request.GET.get("plan")
     if plan_slug:
         try:
-            initial["plan"] = Plan.objects.get(slug=plan_slug, is_active=True).pk
+            selected_plan = visible_plans().get(slug=plan_slug)
+            initial["plan"] = selected_plan.pk
+            if selected_plan.category in {Plan.Category.RICE_BOWL, Plan.Category.SNACK}:
+                initial["delivery_date"] = timezone.localdate()
         except Plan.DoesNotExist:
             pass
     # Preselect the first/cheapest active plan if none was requested.
     # Cuts one tap on a phone, and the user can change with one tap.
     if "plan" not in initial:
         default_plan = (
-            Plan.objects.filter(is_active=True).order_by("sort_order", "price").first()
+            visible_plans().order_by("sort_order", "price").first()
         )
         if default_plan:
             initial["plan"] = default_plan.pk
@@ -245,7 +249,14 @@ def order_success(request, code: str):
     plan_line = f"*Plan:* {order.plan_name} × {order.quantity}"
     if order.meal_multiplier > 1:
         plan_line += f" (Lunch + Dinner = {order.effective_meals} meals)"
-    plan_line += f" (₹{order.plan_subtotal})"
+    plan_line += " (price to confirm)" if order.plan_price_on_request else f" (₹{order.plan_subtotal})"
+    known_total = order.addons_total + order.delivery_fee
+    delivery_line = (
+        f"*Delivery charge:* ₹{order.delivery_fee}"
+        + (f" ({order.delivery_distance_km} km)" if order.delivery_distance_km is not None else "")
+        + "\n"
+        if order.delivery_method == Order.Method.DELIVERY else ""
+    )
 
     if order.delivery_method == Order.Method.PICKUP:
         location_block = (
@@ -259,6 +270,7 @@ def order_success(request, code: str):
             f"*Area:* {order.area}\n"
             f"*Address:* {order.address}\n"
             + (f"*Map:* {order.location_url}\n" if order.location_url else "")
+            + delivery_line
         )
 
     msg = (
@@ -272,7 +284,12 @@ def order_success(request, code: str):
         f"*Delivery date:* {order.delivery_date.isoformat()}\n"
         f"{location_block}"
         + (f"*Notes:* {order.notes}\n" if order.notes else "")
-        + f"\n*Total:* ₹{order.total_price}\n\nPlease confirm. Thanks!"
+        + (
+            f"\n*Total:* Price to confirm on WhatsApp"
+            + (f" + ₹{known_total} fixed charges" if known_total else "")
+            if order.plan_price_on_request else f"\n*Total:* ₹{order.total_price}"
+        )
+        + "\n\nPlease confirm. Thanks!"
     )
     wa_url = f"https://wa.me/{site.whatsapp_number}?text={quote(msg)}"
 

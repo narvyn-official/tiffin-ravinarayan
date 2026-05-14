@@ -11,14 +11,14 @@
     <div class="hero-text">
       <span class="eyebrow">🍃 Cooked fresh today</span>
       <h1>Tiffin Service in {{ SITE.city }} — <span class="accent">Fresh Homemade Meals Delivered Daily</span></h1>
-      <p class="lead">Affordable, hygienic, freshly prepared veg tiffin for offices, PGs, warehouses, students and working professionals across {{ SITE.city }}. ₹70 per meal or ₹3200 monthly.</p>
+      <p class="lead">Affordable, hygienic, freshly prepared veg tiffin for offices, PGs, warehouses, students and working professionals across {{ SITE.city }}. ₹70 tiffin, ₹60 rice bowl, monthly packages from ₹1800.</p>
       <div class="hero-cta">
         <a href="{{ order_url }}" class="btn btn-primary btn-lg">Order Now</a>
         <a href="{{ WHATSAPP_URL }}" class="btn btn-whatsapp btn-lg" target="_blank" rel="noopener">💬 Order on WhatsApp</a>
       </div>
       <ul class="hero-trust">
         <li>✅ FSSAI compliant</li>
-        <li>🚚 Free delivery in {% for a in areas %}{{ a.name }}{% if not forloop.last %} &amp; {% endif %}{% empty %}listed areas{% endfor %}</li>
+        <li>🚚 Free delivery up to 2 km</li>
         <li>⏱ Lunch by 1 PM</li>
         <li>💬 Order on WhatsApp</li>
       </ul>
@@ -32,7 +32,7 @@
     <div class="intro-text">
       <h2>Homestyle veg tiffin, delivered hot in {{ SITE.city }}</h2>
       <p>{{ SITE.business_name }} is a small-batch tiffin service cooking fresh, balanced vegetarian meals every morning. Whether you're a working professional looking for an honest <strong>office lunch tiffin</strong>, a student or PG resident wanting a <strong>monthly tiffin plan</strong>, or just searching for <strong>tiffin near me</strong> that tastes like home — we've got you covered.</p>
-      <p>Each tiffin includes 4 fresh roti, sabzi, dal, rice and salad — cooked in less oil with balanced spice. Lunch is delivered by 1 PM, dinner by 8:30 PM. Order daily, weekly or save big with the <strong>PG Monthly Plan</strong> at ₹3200 / month. No app to install, no online payment — just confirm on WhatsApp.</p>
+      <p>Each tiffin includes 4 fresh roti, sabzi, dal, rice and salad — cooked in less oil with balanced spice. Lunch is delivered by 1 PM, dinner by 8:30 PM. Order daily, weekly or save big with the <strong>PG Monthly Plan</strong>: ₹3500 for lunch + dinner, or ₹1800 for only lunch or only dinner. No app to install, no online payment — just confirm on WhatsApp.</p>
       <ul class="intro-stats">
         <li><strong>2</strong><span>Plans</span></li>
         <li><strong>10+</strong><span>Add-ons</span></li>
@@ -117,9 +117,9 @@
   <div class="container">
     <header class="section-head">
       <h2>Our Plans</h2>
-      <p class="muted">Two simple choices. Order daily, or save big with the monthly plan.</p>
+      <p class="muted">Daily tiffin, monthly packages, today's rice bowl and group snacks.</p>
     </header>
-    <div class="plans-grid plans-2">
+    <div class="plans-grid">
       {% for plan in plans %}
         {% include "tiffin/components/plan_card.html" with plan=plan %}
       {% endfor %}

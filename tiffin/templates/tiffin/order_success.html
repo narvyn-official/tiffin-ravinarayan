@@ -33,7 +33,7 @@
         </div>
         <div class="summary-row">
           <span class="label">Plan</span>
-          <span class="value">{{ order.plan_name }} × {{ order.quantity }}{% if order.meal_multiplier > 1 %} (Lunch + Dinner = {{ order.effective_meals }} meals){% endif %} <span class="muted small">(₹{{ order.plan_subtotal }})</span></span>
+          <span class="value">{{ order.plan_name }} × {{ order.quantity }}{% if order.meal_multiplier > 1 %} (Lunch + Dinner = {{ order.effective_meals }} meals){% endif %} <span class="muted small">({% if order.plan_price_on_request %}price to confirm{% else %}₹{{ order.plan_subtotal }}{% endif %})</span></span>
         </div>
         {% if order.addons %}
         <div class="summary-row">
@@ -45,6 +45,12 @@
         <div class="summary-row">
           <span class="label">Add-ons total</span>
           <span class="value">₹{{ order.addons_total }}</span>
+        </div>
+        {% endif %}
+        {% if order.delivery_method == "delivery" %}
+        <div class="summary-row">
+          <span class="label">Delivery charge</span>
+          <span class="value">₹{{ order.delivery_fee }}{% if order.delivery_distance_km %} <span class="muted small">({{ order.delivery_distance_km }} km)</span>{% endif %}</span>
         </div>
         {% endif %}
         <div class="summary-row">
@@ -80,7 +86,7 @@
         {% endif %}
         <div class="summary-row total">
           <span class="label">Total</span>
-          <span class="value">₹{{ order.total_price }}</span>
+          <span class="value">{% if order.plan_price_on_request %}To confirm on WhatsApp{% if order.total_price %} + ₹{{ order.total_price }} fixed charges{% endif %}{% else %}₹{{ order.total_price }}{% endif %}</span>
         </div>
       </div>
 

@@ -14,9 +14,9 @@ class SiteSettingsAdmin(admin.ModelAdmin):
         ("Delivery zone (geofence)", {
             "fields": ("delivery_center_lat", "delivery_center_lng", "delivery_radius_km"),
             "description": (
-                "Set your kitchen's coordinates and a max delivery radius (km). "
-                "When a customer pins their location, orders outside the radius are rejected. "
-                "Set radius to 0 to disable the geofence."
+                "Set your kitchen's coordinates and an optional max delivery radius (km). "
+                "Delivery is free up to 2 km, then ₹10 per started 2 km slab. "
+                "Set radius to 0 or 2 for no hard cap; set a higher number to reject orders beyond it."
             ),
         }),
         ("Pickup", {"fields": ("pickup_enabled",)}),
@@ -51,9 +51,9 @@ class DeliveryAreaAdmin(admin.ModelAdmin):
 
 @admin.register(Plan)
 class PlanAdmin(admin.ModelAdmin):
-    list_display = ("name", "price", "unit", "badge", "image_filename", "is_active", "sort_order")
-    list_editable = ("price", "is_active", "sort_order")
-    list_filter = ("is_active",)
+    list_display = ("name", "category", "price", "price_on_request", "unit", "min_quantity", "available_day_of_week", "is_active", "sort_order")
+    list_editable = ("price", "price_on_request", "is_active", "sort_order")
+    list_filter = ("category", "is_active", "available_day_of_week")
     search_fields = ("name", "slug")
     prepopulated_fields = {"slug": ("name",)}
 
@@ -81,5 +81,5 @@ class OrderAdmin(admin.ModelAdmin):
     list_filter = ("status", "delivery_method", "meal_time", "area", "plan_slug")
     search_fields = ("code", "full_name", "phone", "address")
     list_editable = ("status",)
-    readonly_fields = ("code", "created_at", "plan_name", "plan_price", "plan_unit",
-                        "addons", "addons_total", "total_price", "location_url")
+    readonly_fields = ("code", "created_at", "plan_name", "plan_price", "plan_price_on_request", "plan_unit",
+                        "delivery_distance_km", "delivery_fee", "addons", "addons_total", "total_price", "location_url")

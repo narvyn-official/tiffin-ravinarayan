@@ -3,18 +3,20 @@
 <article class="plan-card{% if plan.badge %} has-badge{% endif %}">
   <div class="plan-image">
     <img src="{% static 'img/' %}{{ plan.image_path_webp }}"
-         alt="{{ plan.name }} — homemade tiffin from {{ SITE.business_name }}"
+         alt="{{ plan.name }} — {{ plan.category_label }} from {{ SITE.business_name }}"
          loading="lazy" decoding="async"
          onerror="this.parentElement.classList.add('no-image'); this.remove();">
   </div>
   {% if plan.badge %}<span class="plan-badge">{{ plan.badge }}</span>{% endif %}
   <div class="plan-body">
+    <span class="plan-category">{{ plan.category_label }}</span>
     <h3 class="plan-name">{{ plan.name }}</h3>
     <p class="plan-tagline">{{ plan.tagline }}</p>
     <div class="plan-price">
-      <span class="price-amount">₹{{ plan.price }}</span>
-      <span class="price-unit">{{ plan.unit }}</span>
+      <span class="price-amount">{{ plan.price_label }}</span>
+      {% if not plan.price_on_request %}<span class="price-unit">{{ plan.unit }}</span>{% endif %}
     </div>
+    <p class="plan-availability">{{ plan.availability_label }}</p>
     <ul class="plan-items">
       {% for item in plan.items_list %}<li>✓ {{ item }}</li>{% endfor %}
     </ul>

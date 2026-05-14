@@ -1,6 +1,6 @@
 {% extends "tiffin/base.html" %}
 {% block title %}Order Tiffin Online — {{ SITE.business_name }}{% endblock %}
-{% block description %}Order homemade tiffin online. Pick a plan, add extras, confirm on WhatsApp. Daily Tiffin at ₹70 per meal, PG Monthly Plan at ₹3200/month. Fresh, vegetarian, FSSAI-compliant.{% endblock %}
+{% block description %}Order homemade tiffin, today's rice bowl, or group snacks online. Daily Tiffin at ₹70, rice bowl at ₹60, monthly package from ₹1800. Fresh, vegetarian, FSSAI-compliant.{% endblock %}
 
 {% block content %}
 <section class="section section-page-head">
@@ -19,6 +19,9 @@
         data-kitchen-lat="{{ SITE.delivery_center_lat|default_if_none:'' }}"
         data-kitchen-lng="{{ SITE.delivery_center_lng|default_if_none:'' }}"
         data-delivery-radius-km="{{ SITE.delivery_radius_km|default_if_none:'0' }}"
+        data-delivery-free-km="2"
+        data-delivery-fee-slab-km="2"
+        data-delivery-fee-per-slab="10"
         data-business-name="{{ SITE.short_name|escape }}">
     {% csrf_token %}
 
@@ -36,13 +39,23 @@
         <input type="hidden" name="{{ form.plan.name }}" id="{{ form.plan.id_for_label }}" value="{{ form.plan.value|default:'' }}">
         <div class="plan-picker">
           {% for plan in plans %}
-            <label class="plan-pick" data-plan-id="{{ plan.id }}" data-plan-name="{{ plan.name|escape }}" data-plan-price="{{ plan.price }}" data-plan-unit="{{ plan.unit|escape }}">
+            <label class="plan-pick"
+                   data-plan-id="{{ plan.id }}"
+                   data-plan-name="{{ plan.name|escape }}"
+                   data-plan-price="{{ plan.price }}"
+                   data-plan-price-on-request="{% if plan.price_on_request %}1{% else %}0{% endif %}"
+                   data-plan-category="{{ plan.category }}"
+                   data-plan-min-quantity="{{ plan.min_quantity }}"
+                   data-plan-single-meal-price="{{ plan.monthly_single_meal_price|default_if_none:'' }}"
+                   data-plan-unit="{{ plan.unit|escape }}">
               <input type="radio" name="plan_pick" value="{{ plan.id }}" {% if form.plan.value|stringformat:"s" == plan.id|stringformat:"s" %}checked{% endif %}>
               <span class="plan-pick-inner">
                 {% if plan.badge %}<span class="plan-badge">{{ plan.badge }}</span>{% endif %}
+                <span class="plan-category">{{ plan.category_label }}</span>
                 <span class="plan-pick-name">{{ plan.name }}</span>
                 <span class="plan-pick-tag muted">{{ plan.tagline }}</span>
-                <span class="plan-pick-price">₹{{ plan.price }} <span class="muted small">{{ plan.unit }}</span></span>
+                <span class="plan-pick-price">{{ plan.price_label }} {% if not plan.price_on_request %}<span class="muted small">{{ plan.unit }}</span>{% endif %}</span>
+                <span class="plan-pick-tag muted small">{{ plan.availability_label }}</span>
                 <span class="plan-pick-items muted small">{{ plan.items_list|join:" · " }}</span>
               </span>
             </label>
@@ -61,7 +74,7 @@
             <span class="method-card">
               <span class="method-icon" aria-hidden="true">🚚</span>
               <span class="method-title">Home delivery</span>
-              <span class="method-desc muted small">We'll deliver to your address</span>
+              <span class="method-desc muted small">Free up to 2 km, then ₹10 per 2 km</span>
             </span>
           </label>
           <label class="method-option">
@@ -113,7 +126,7 @@
               <span class="loc-trigger-text">
                 <span class="loc-trigger-empty" data-loc-empty>
                   <strong>Set your delivery location</strong>
-                  <span class="muted small">Search, GPS, or pick on map</span>
+                  <span class="muted small">Free up to 2 km, then ₹10 per 2 km</span>
                 </span>
                 <span class="loc-trigger-set" data-loc-set hidden>
                   <strong data-loc-summary></strong>
@@ -154,9 +167,10 @@
           <div class="form-row">
             <label for="{{ form.quantity.id_for_label }}">Quantity <span class="req">*</span></label>
             {{ form.quantity }}
+            <small id="quantity-hint" class="hint" hidden></small>
             {% if form.quantity.errors %}<div class="field-error">{{ form.quantity.errors|join:" " }}</div>{% endif %}
           </div>
-          <div class="form-row">
+          <div class="form-row" data-meal-time-row>
             <label for="{{ form.meal_time.id_for_label }}">Meal time <span class="req">*</span></label>
             {{ form.meal_time }}
             <small id="multiplier-hint" class="hint" hidden>Lunch + Dinner doubles the meal count.</small>
@@ -165,6 +179,7 @@
           <div class="form-row">
             <label for="{{ form.delivery_date.id_for_label }}">Date <span class="req">*</span></label>
             <div class="date-chips" data-date-chips role="group" aria-label="Quick date select">
+              <button type="button" class="date-chip" data-day-offset="0">Today</button>
               <button type="button" class="date-chip" data-day-offset="1">Tomorrow</button>
               <button type="button" class="date-chip" data-day-offset="2">Day after</button>
               <button type="button" class="date-chip" data-day-offset="3">In 3 days</button>
@@ -237,9 +252,14 @@
           <span><strong data-sum-addons-total>₹0</strong></span>
         </div>
 
+        <div class="sum-line" data-sum-delivery-row>
+          <span class="muted">Delivery charge</span>
+          <span><strong data-sum-delivery-fee>Set location</strong></span>
+        </div>
+
         <div class="sum-total">
           <span>Total</span>
-          <span class="sum-total-amount">₹<span data-sum-total>0</span></span>
+          <span class="sum-total-amount" data-sum-total>₹0</span>
         </div>
 
         <button type="submit" class="btn btn-primary btn-lg btn-block sum-submit" data-sum-submit>
@@ -302,7 +322,7 @@
   <div class="mobile-cta-bar" data-mobile-cta>
     <div class="mobile-cta-info">
       <span class="mobile-cta-plan muted" data-mobile-plan>Pick a plan</span>
-      <span class="mobile-cta-total">₹<span data-sum-total-mobile>0</span></span>
+      <span class="mobile-cta-total" data-sum-total-mobile>₹0</span>
     </div>
     <button type="submit" form="order-form" class="btn btn-primary mobile-cta-btn">
       Place Order →

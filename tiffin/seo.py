@@ -12,6 +12,8 @@ from datetime import date
 
 from django.urls import reverse
 
+from .geo import FREE_DELIVERY_KM
+
 
 # ---------- meta-tag helpers ----------------------------------------------
 
@@ -65,7 +67,12 @@ def _geo(site) -> dict | None:
 def _service_area(site, areas) -> list[dict]:
     """Schema.org areaServed entries — one per active delivery area."""
     items = []
-    if site.delivery_center_lat and site.delivery_center_lng and site.delivery_radius_km:
+    if (
+        site.delivery_center_lat
+        and site.delivery_center_lng
+        and site.delivery_radius_km
+        and float(site.delivery_radius_km) > FREE_DELIVERY_KM
+    ):
         items.append({
             "@type": "GeoCircle",
             "geoMidpoint": _geo(site),
@@ -110,16 +117,18 @@ def restaurant_jsonld(request, site, areas, plans) -> dict:
     # Offer catalog: each plan = an Offer
     offers = []
     for p in plans:
-        offers.append({
+        offer = {
             "@type": "Offer",
             "name": p.name,
             "description": p.tagline,
-            "price": str(p.price),
             "priceCurrency": "INR",
             "url": _full(request, "menu"),
             "availability": "https://schema.org/InStock",
-            "category": "Tiffin Plan",
-        })
+            "category": p.category_label,
+        }
+        if not p.price_on_request:
+            offer["price"] = str(p.price)
+        offers.append(offer)
     if offers:
         payload["makesOffer"] = offers
 

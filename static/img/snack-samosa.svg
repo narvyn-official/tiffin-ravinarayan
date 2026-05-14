@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 540" role="img" aria-label="Samosa order card">
+  <rect width="960" height="540" fill="#fff1df"/>
+  <circle cx="720" cy="150" r="92" fill="#f09b2f" opacity=".18"/>
+  <path d="M472 142 272 418h400L472 142z" fill="#e99a35" stroke="#2d2014" stroke-width="9" stroke-linejoin="round"/>
+  <path d="M472 142c-10 95-7 188 0 276" fill="none" stroke="#c07024" stroke-width="8"/>
+  <path d="M363 312c76 22 150 22 222 0" fill="none" stroke="#c07024" stroke-width="8" stroke-linecap="round"/>
+  <circle cx="650" cy="364" r="42" fill="#4f9d59"/><circle cx="704" cy="340" r="28" fill="#9d2e2e"/>
+  <text x="88" y="104" fill="#2d2014" font-family="Arial, sans-serif" font-size="54" font-weight="900">SAMOSA</text>
+  <text x="88" y="160" fill="#70410e" font-family="Arial, sans-serif" font-size="30">Minimum 15 pcs</text>
+  <text x="88" y="202" fill="#4d4a40" font-family="Arial, sans-serif" font-size="28">Available on order</text>
+</svg>

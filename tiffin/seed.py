@@ -40,7 +40,7 @@ DEFAULT_PLANS = [
         "slug": "pg-monthly",
         "name": "PG Monthly Tiffin",
         "tagline": "Lunch + Dinner, 30 days, big savings",
-        "price": 3499,
+        "price": 3500,
         "unit": "per month",
         "items": "Lunch + Dinner daily\nRoti, Sabzi, Dal, Rice\nWeekly menu rotation\n1 special meal / week",
         "badge": "Best Value",

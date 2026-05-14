@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 540" role="img" aria-label="Curry rice bowl with salad">
+  <rect width="960" height="540" fill="#fff5d9"/>
+  <circle cx="730" cy="134" r="86" fill="#e8ad28" opacity=".2"/>
+  <circle cx="220" cy="150" r="72" fill="#2f8f46" opacity=".13"/>
+  <ellipse cx="492" cy="318" rx="282" ry="132" fill="#fffaf0" stroke="#2d2014" stroke-width="8"/>
+  <ellipse cx="492" cy="292" rx="232" ry="92" fill="#f7ecd4"/>
+  <path d="M304 285c92-64 272-72 378 0-25 54-88 82-191 82s-164-28-187-82z" fill="#ffffff"/>
+  <path d="M356 254c74-45 204-44 270 4-52 45-219 45-270-4z" fill="#e0a326"/>
+  <circle cx="430" cy="282" r="11" fill="#a76121"/><circle cx="507" cy="258" r="10" fill="#a76121"/><circle cx="582" cy="294" r="12" fill="#a76121"/>
+  <path d="M656 224c38 8 72 29 96 58-55 34-112 26-154-13 13-27 32-42 58-45z" fill="#4f9d59"/>
+  <text x="88" y="96" fill="#2d2014" font-family="Arial, sans-serif" font-size="48" font-weight="800">FRIDAY</text>
+  <text x="88" y="156" fill="#bf7d08" font-family="Arial, sans-serif" font-size="60" font-weight="900">CURRY</text>
+  <text x="88" y="212" fill="#4d4a40" font-family="Arial, sans-serif" font-size="30">Rice bowl + salad</text>
+</svg>
