@@ -42,7 +42,7 @@ DEFAULT_PLANS = [
         "tagline": "Lunch + Dinner, 30 days, big savings",
         "price": 3500,
         "unit": "per month",
-        "items": "Lunch + Dinner daily\nRoti, Sabzi, Dal, Rice\nWeekly menu rotation\n1 special meal / week",
+        "items": "Lunch + Dinner daily\nRoti, Sabzi, Dal, Rice\nWeekly menu rotation\n1 special meal / week\nLunch-only or dinner-only: ₹2000/month",
         "badge": "Best Value",
         "sort_order": 4,
     },

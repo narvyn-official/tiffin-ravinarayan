@@ -1,13 +1,13 @@
 {% extends "tiffin/base.html" %}
 {% load static %}
-{% block title %}Order Tiffin Online — {{ SITE.business_name }}{% endblock %}
-{% block description %}Order homemade tiffin, today's rice bowl, or group snacks online. Daily Tiffin at ₹70, rice bowl at ₹60, monthly package from ₹1800. Fresh, vegetarian, FSSAI-compliant.{% endblock %}
+{% block title %}Order Tiffin Service in Metcity — {{ SITE.business_name }}{% endblock %}
+{% block description %}Order homemade tiffin service in Metcity online. Daily Tiffin ₹80, rice bowl ₹60, monthly lunch-only or dinner-only ₹2000. Fresh vegetarian meals.{% endblock %}
 
 {% block content %}
 <section class="section section-page-head">
   <div class="container">
-    <h1>Place Your Order</h1>
-    <p class="muted">Pick a plan, fill your details, add extras, and confirm on WhatsApp. Takes less than a minute.</p>
+    <h1>Order Food</h1>
+    <p class="muted">Pick your meal, set location, add extras, and confirm on WhatsApp.</p>
   </div>
 </section>
 
@@ -66,6 +66,9 @@
                 <span class="plan-pick-name">{{ plan.name }}</span>
                 <span class="plan-pick-tag muted">{{ plan.tagline }}</span>
                 <span class="plan-pick-price">{{ plan.price_label }} {% if not plan.price_on_request %}<span class="muted small">{{ plan.unit }}</span>{% endif %}</span>
+                {% if plan.monthly_single_meal_price %}
+                  <span class="plan-single-price muted small">Lunch or dinner only ₹{{ plan.monthly_single_meal_price }}/month</span>
+                {% endif %}
                 <span class="plan-pick-tag muted small">{{ plan.availability_label }}</span>
                 <span class="plan-pick-items muted small">{{ plan.items_list|join:" · " }}</span>
               </span>
@@ -300,6 +303,7 @@
       </header>
 
       <div class="loc-modal-search">
+        <p class="loc-radius-note muted small">Delivery is available up to {{ max_delivery_km }} km. Free up to 2 km, then ₹10 per 2 km.</p>
         <div class="loc-search-wrap">
           <span class="loc-search-icon" aria-hidden="true">🔍</span>
           <input type="text" class="field loc-search-input" data-loc-search

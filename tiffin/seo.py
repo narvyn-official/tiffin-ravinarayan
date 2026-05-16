@@ -90,6 +90,7 @@ def restaurant_jsonld(request, site, areas, plans) -> dict:
         "name": site.business_name,
         "alternateName": site.short_name,
         "description": site.site_description,
+        "keywords": site.seo_keywords,
         "url": home,
         "telephone": site.phone,
         "email": site.email,

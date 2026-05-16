@@ -85,20 +85,20 @@ class SiteSettings(models.Model):
     seo_keywords = models.CharField(
         max_length=400, blank=True,
         default=(
-            "tiffin service Jhajjar, tiffin in Metcity, tiffin in Yakubpur, "
-            "tiffin Bahadurgarh, tiffin Farrukhnagar, homemade tiffin Haryana, "
-            "monthly tiffin PG, lunch tiffin office, veg tiffin near me, "
-            "dabba service Jhajjar, tiffin near me, ghar ka khana"
+            "tiffin service, tiffin service in Metcity, tiffin service in Yakubpur, "
+            "tiffin service near me, tiffin near me, homemade tiffin Metcity, "
+            "veg tiffin service, daily tiffin service, monthly tiffin service, "
+            "office lunch tiffin, PG tiffin service, dabba service Jhajjar, "
+            "lunch tiffin, dinner tiffin, ghar ka khana"
         ),
         help_text="Comma-separated keywords. Used in meta keywords + helps drive copy.",
     )
     site_description = models.CharField(
         max_length=320, blank=True,
         default=(
-            "Fresh homemade veg tiffin service in Jhajjar — Metcity, Yakubpur, "
-            "Bahadurgarh & Farrukhnagar. Daily tiffin from ₹70, monthly packages from "
-            "₹1800, and today's rice bowl at ₹60. FSSAI compliant. "
-            "Order on WhatsApp."
+            "Fresh homemade veg tiffin service in Metcity, Yakubpur and Jhajjar. "
+            "Daily tiffin ₹80, monthly lunch-only or dinner-only ₹2000, "
+            "lunch+dinner ₹3500, rice bowl ₹60. Order online or WhatsApp."
         ),
         help_text="160-300 chars. Used as the site-wide default meta description.",
     )

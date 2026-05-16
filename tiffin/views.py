@@ -27,8 +27,8 @@ FAQS = [
     ),
     (
         "What's the price of one tiffin?",
-        "₹70 per meal for the Daily Tiffin (4 roti, sabzi, dal, rice, salad). For long-term "
-        "subscribers, our PG Monthly Plan is ₹3500 per month for lunch + dinner, or ₹1800 per "
+        "₹80 per meal for the Daily Tiffin (4 roti, sabzi, dal, rice, salad). For long-term "
+        "subscribers, our PG Monthly Plan is ₹3500 per month for lunch + dinner, or ₹2000 per "
         "month for either lunch or dinner."
     ),
     (
@@ -125,15 +125,11 @@ def home(request):
         "areas": areas,
         "faqs": FAQS,
         # ≤60 chars title — keyword + locale + brand
-        "page_title": (
-            f"Tiffin Service in {site.city}"
-            f"{' — ' + area_names if area_names else ''} | {site.short_name}"
-        ),
+        "page_title": "Tiffin Service in Metcity | Ravinarayan Tiffin",
         # ~150 chars meta description
         "page_description": (
-            f"Fresh homemade veg tiffin in {site.city}"
-            f"{' (' + area_names + ')' if area_names else ''}. Tiffin from ₹70, monthly from ₹1800, "
-            f"and today's rice bowl at ₹60."
+            f"Fresh homemade tiffin service in Metcity, Yakubpur and {site.city}. "
+            f"Daily veg tiffin ₹80, monthly tiffin from ₹2000, rice bowl ₹60. Order near you."
         ),
         "jsonld_blobs": [seo.dump(j) for j in jsonld if j],
         "canonical_url": seo.canonical(request),
@@ -158,11 +154,11 @@ def menu(request):
     response = render(request, "tiffin/menu.html", {
         "plans": plans,
         # ≤60 chars
-        "page_title": f"Tiffin Plans — ₹70 Meals · ₹60 Rice Bowls | {site.short_name}",
+        "page_title": f"Tiffin Plans in Metcity | ₹80 Meals & Monthly Tiffin",
         # ~150 chars
         "page_description": (
-            f"Daily Tiffin at ₹70, PG monthly from ₹1800, today's rice bowl at ₹60, "
-            f"and group snacks on order in {site.city}."
+            f"Daily Tiffin at ₹80, monthly lunch-only or dinner-only ₹2000, "
+            f"lunch+dinner ₹3500, rice bowl ₹60, and snacks on order in {site.city}."
         ),
         "jsonld_blobs": [seo.dump(j) for j in jsonld if j],
         "canonical_url": seo.canonical(request),

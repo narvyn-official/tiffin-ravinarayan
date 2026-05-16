@@ -75,8 +75,8 @@
   const sumDeliveryRow = $("[data-sum-delivery-row]");
   const sumDeliveryFeeEl = $("[data-sum-delivery-fee]");
   const sumTotalEl = $("[data-sum-total]");
-  const sumTotalMobileEl = $("[data-sum-total-mobile]");
-  const mobilePlanEl = $("[data-mobile-plan]");
+  const sumTotalMobileEl = document.querySelector("[data-sum-total-mobile]");
+  const mobilePlanEl = document.querySelector("[data-mobile-plan]");
   const deliveryFreeKm = Number(form.dataset.deliveryFreeKm) || 2;
   const deliveryFeeSlabKm = Number(form.dataset.deliveryFeeSlabKm) || 2;
   const deliveryFeePerSlab = Number(form.dataset.deliveryFeePerSlab) || 10;

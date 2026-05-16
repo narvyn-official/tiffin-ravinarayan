@@ -145,7 +145,7 @@ class OrderRuleTests(TestCase):
             name="Monthly",
             category=Plan.Category.TIFFIN,
             price=3500,
-            monthly_single_meal_price=1800,
+            monthly_single_meal_price=2000,
             unit="per month",
         )
         form = OrderForm(data=self.form_data(
@@ -156,8 +156,8 @@ class OrderRuleTests(TestCase):
 
         self.assertTrue(form.is_valid(), form.errors.as_text())
         order = form.save()
-        self.assertEqual(order.plan_price, 1800)
-        self.assertEqual(order.plan_subtotal, 1800)
+        self.assertEqual(order.plan_price, 2000)
+        self.assertEqual(order.plan_subtotal, 2000)
 
     def test_rice_bowl_respects_day_and_order_window(self):
         today = date.today()
@@ -219,3 +219,16 @@ class OrderRuleTests(TestCase):
         order = form.save()
         self.assertTrue(order.plan_price_on_request)
         self.assertEqual(order.plan_price, 0)
+
+
+class SeededBusinessDataTests(TestCase):
+    def test_seeded_prices_and_local_seo_defaults_match_public_copy(self):
+        site = SiteSettings.get()
+        daily = Plan.objects.get(slug="daily-tiffin")
+        monthly = Plan.objects.get(slug="pg-monthly")
+
+        self.assertEqual(daily.price, 80)
+        self.assertEqual(monthly.monthly_single_meal_price, 2000)
+        self.assertIn("₹2000/month", monthly.items)
+        self.assertIn("tiffin service in Metcity", site.seo_keywords)
+        self.assertIn("Daily tiffin ₹80", site.site_description)
