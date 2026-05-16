@@ -304,6 +304,7 @@
   // ---- pickup vs delivery toggle ---------------------------------------
   const deliveryFields = $("#delivery-fields");
   const pickupInfo = $("#pickup-info");
+  let autoMinQuantity = null;
 
   function applyPlanControls() {
     const plan = getSelectedPlan();
@@ -314,8 +315,21 @@
     const minQty = plan ? plan.minQuantity : 1;
     if (qtyInput) {
       qtyInput.min = String(minQty);
-      const current = Math.max(1, parseInt(qtyInput.value, 10) || 1);
-      if (current < minQty) qtyInput.value = String(minQty);
+      const planId = plan ? String(plan.id) : "";
+      let current = Math.max(1, parseInt(qtyInput.value, 10) || 1);
+
+      if (autoMinQuantity && autoMinQuantity.planId !== planId && current === autoMinQuantity.appliedQty) {
+        current = Math.max(1, autoMinQuantity.originalQty);
+        qtyInput.value = String(current);
+        autoMinQuantity = null;
+      }
+
+      if (current < minQty) {
+        autoMinQuantity = { planId, originalQty: current, appliedQty: minQty };
+        qtyInput.value = String(minQty);
+      } else if (autoMinQuantity && (current !== autoMinQuantity.appliedQty || autoMinQuantity.planId !== planId)) {
+        autoMinQuantity = null;
+      }
     }
     if (quantityHint) {
       quantityHint.hidden = minQty <= 1;
@@ -461,7 +475,10 @@
    "#id_meal_time","#id_delivery_date"].forEach((sel) => {
     const el = $(sel);
     if (el) {
-      el.addEventListener("input", recompute);
+      el.addEventListener("input", () => {
+        if (el === qtyInput) autoMinQuantity = null;
+        recompute();
+      });
       el.addEventListener("change", recompute);
     }
   });
