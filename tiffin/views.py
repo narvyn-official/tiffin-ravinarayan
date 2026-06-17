@@ -3,13 +3,14 @@ from urllib.parse import quote
 from django.contrib import messages
 from django.contrib.auth import authenticate, login as auth_login, logout as auth_logout
 from django.contrib.auth.decorators import login_required, user_passes_test
+from django.contrib.sitemaps.views import sitemap as django_sitemap
 from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.decorators import method_decorator
 from django.views.decorators.cache import cache_control
-from django.views.decorators.http import require_GET, require_http_methods, require_POST
+from django.views.decorators.http import require_GET, require_http_methods, require_POST, require_safe
 
 from . import seo
 from .catalog import visible_plans
@@ -17,6 +18,7 @@ from .forms import OrderForm, TIFFIN_DINNER_CUTOFF, TIFFIN_LUNCH_CUTOFF
 from .geo import MAX_DELIVERY_KM
 from .local_seo import SERVICE_AREAS
 from .models import Addon, DailyMenu, DeliveryArea, Order, Plan, SiteSettings
+from .sitemaps import SITEMAPS
 
 
 FAQS = [
@@ -213,7 +215,7 @@ def review_redirect(request):
 
 # ---------- SEO endpoints --------------------------------------------------
 
-@require_GET
+@require_safe
 @cache_control(max_age=3600, public=True)
 def robots_txt(request):
     site = SiteSettings.get()
@@ -231,6 +233,14 @@ def robots_txt(request):
         "",
     ])
     return HttpResponse(body, content_type="text/plain; charset=utf-8")
+
+
+@require_safe
+@cache_control(max_age=3600, public=True)
+def sitemap_xml(request):
+    response = django_sitemap(request, sitemaps=SITEMAPS)
+    response.headers.pop("X-Robots-Tag", None)
+    return response
 
 
 @require_http_methods(["GET", "POST"])

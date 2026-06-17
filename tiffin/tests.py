@@ -277,9 +277,15 @@ class PublicSeoTests(TestCase):
             self.assertContains(response, f'<link rel="canonical" href="http://testserver/tiffin-service-in-{slug}/"')
 
         sitemap = self.client.get("/sitemap.xml")
+        self.assertEqual(sitemap.status_code, 200)
+        self.assertEqual(sitemap["Content-Type"], "application/xml")
+        self.assertNotIn("X-Robots-Tag", sitemap.headers)
         self.assertContains(sitemap, "https://testserver/tiffin-service-in-metcity/")
         self.assertContains(sitemap, "https://testserver/tiffin-service-in-yakubpur/")
         self.assertContains(sitemap, "https://testserver/tiffin-service-in-jhajjar/")
+
+        robots_head = self.client.head("/robots.txt")
+        self.assertEqual(robots_head.status_code, 200)
 
     def test_review_redirect_uses_google_profile_url(self):
         response = self.client.get("/review/")
