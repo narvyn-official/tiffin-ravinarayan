@@ -239,6 +239,7 @@ class SeededBusinessDataTests(TestCase):
         self.assertEqual(str(site.delivery_center_lat), "28.484427")
         self.assertEqual(str(site.delivery_center_lng), "76.784015")
         self.assertEqual(site.google_maps_url, "https://www.google.com/maps?cid=16202019902653058804")
+        self.assertEqual(site.google_business_url, "https://share.google/kvPQQtTdyJ65cEiqi")
 
         active_areas = list(DeliveryArea.objects.filter(is_active=True).values_list("name", flat=True))
         self.assertEqual(active_areas, ["Metcity", "Yakubpur", "Jhajjar"])
@@ -255,6 +256,7 @@ class PublicSeoTests(TestCase):
         self.assertContains(response, "Tiffin service in Metcity")
         self.assertContains(response, "Tiffin service in Yakubpur")
         self.assertContains(response, "Tiffin service in Jhajjar")
+        self.assertContains(response, 'href="/review/"')
 
         order = self.client.get("/order/")
         self.assertContains(order, "<title>Order Tiffin Online in Metcity")
@@ -278,3 +280,8 @@ class PublicSeoTests(TestCase):
         self.assertContains(sitemap, "https://testserver/tiffin-service-in-metcity/")
         self.assertContains(sitemap, "https://testserver/tiffin-service-in-yakubpur/")
         self.assertContains(sitemap, "https://testserver/tiffin-service-in-jhajjar/")
+
+    def test_review_redirect_uses_google_profile_url(self):
+        response = self.client.get("/review/")
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response["Location"], "https://share.google/kvPQQtTdyJ65cEiqi")

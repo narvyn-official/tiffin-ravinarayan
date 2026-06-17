@@ -204,6 +204,13 @@ def location_page(request, area_slug: str):
     return response
 
 
+@require_GET
+def review_redirect(request):
+    site = SiteSettings.get()
+    target = site.google_business_url or site.google_maps_url or reverse("home")
+    return redirect(target)
+
+
 # ---------- SEO endpoints --------------------------------------------------
 
 @require_GET

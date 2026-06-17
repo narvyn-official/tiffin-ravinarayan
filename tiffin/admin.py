@@ -20,7 +20,7 @@ class SiteSettingsAdmin(admin.ModelAdmin):
             ),
         }),
         ("Pickup", {"fields": ("pickup_enabled",)}),
-        ("Social (optional)", {"fields": ("instagram_url", "facebook_url", "google_maps_url")}),
+        ("Social (optional)", {"fields": ("instagram_url", "facebook_url", "google_maps_url", "google_business_url")}),
     )
     readonly_fields = ()
 

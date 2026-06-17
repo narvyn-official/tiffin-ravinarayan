@@ -15,6 +15,7 @@ SITE_DESCRIPTION = (
 )
 
 GOOGLE_MAPS_URL = "https://www.google.com/maps?cid=16202019902653058804"
+GOOGLE_REVIEW_URL = "https://share.google/kvPQQtTdyJ65cEiqi"
 
 SERVICE_AREAS = {
     "metcity": {

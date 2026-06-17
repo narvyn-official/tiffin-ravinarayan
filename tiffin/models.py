@@ -81,8 +81,8 @@ class SiteSettings(models.Model):
     )
     google_business_url = models.URLField(
         blank=True,
-        default="https://www.google.com/maps?cid=16202019902653058804",
-        help_text="Your Google Business Profile sharable link.",
+        default="https://share.google/kvPQQtTdyJ65cEiqi",
+        help_text="Google Business Profile sharable link used by the /review/ redirect.",
     )
 
     # SEO / analytics
