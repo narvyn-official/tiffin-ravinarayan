@@ -77,12 +77,25 @@ def _service_area(site, areas) -> list[dict]:
             "geoRadius": MAX_DELIVERY_KM * 1000,  # metres
         })
     for a in areas:
-        items.append({"@type": "Place", "name": f"{a.name}, {site.city}"})
+        place_name = f"{a.name}, {site.state}" if a.name == site.city else f"{a.name}, {site.city}"
+        items.append({"@type": "Place", "name": place_name})
     return items
+
+
+def _unique_urls(urls: list[str]) -> list[str]:
+    seen = set()
+    out = []
+    for url in urls:
+        if url and url not in seen:
+            out.append(url)
+            seen.add(url)
+    return out
 
 
 def restaurant_jsonld(request, site, areas, plans) -> dict:
     home = _full(request, "home")
+    menu_url = _full(request, "menu")
+    order_url = _full(request, "order")
     payload: dict = {
         "@context": "https://schema.org",
         "@type": ["Restaurant", "FoodEstablishment", "LocalBusiness"],
@@ -94,7 +107,11 @@ def restaurant_jsonld(request, site, areas, plans) -> dict:
         "url": home,
         "telephone": site.phone,
         "email": site.email,
-        "image": absolute_url(request, "/static/img/logo.png"),
+        "image": [
+            absolute_url(request, "/static/img/hero.webp"),
+            absolute_url(request, "/static/img/plan-daily.webp"),
+            absolute_url(request, "/static/img/logo.png"),
+        ],
         "logo": absolute_url(request, "/static/img/logo.png"),
         "priceRange": "₹",
         "currenciesAccepted": "INR",
@@ -103,11 +120,23 @@ def restaurant_jsonld(request, site, areas, plans) -> dict:
         "address": _postal_address(site),
         "openingHoursSpecification": _opening_hours(site),
         "areaServed": _service_area(site, areas),
+        "hasMenu": menu_url,
         "hasMap": site.google_maps_url or "",
-        "sameAs": [u for u in [
+        "sameAs": _unique_urls([
             site.facebook_url, site.instagram_url,
             site.google_business_url, site.google_maps_url,
-        ] if u],
+        ]),
+        "potentialAction": {
+            "@type": "OrderAction",
+            "target": {
+                "@type": "EntryPoint",
+                "urlTemplate": order_url,
+                "actionPlatform": [
+                    "https://schema.org/DesktopWebPlatform",
+                    "https://schema.org/MobileWebPlatform",
+                ],
+            },
+        },
     }
     geo = _geo(site)
     if geo:
@@ -133,6 +162,52 @@ def restaurant_jsonld(request, site, areas, plans) -> dict:
 
     # Drop empty fields for a cleaner payload
     return {k: v for k, v in payload.items() if v not in (None, "", [], {})}
+
+
+def website_jsonld(request, site) -> dict:
+    home = _full(request, "home")
+    return {
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "@id": home + "#website",
+        "url": home,
+        "name": site.business_name,
+        "alternateName": site.short_name,
+        "inLanguage": "en-IN",
+        "publisher": {"@id": home + "#business"},
+    }
+
+
+def service_jsonld(request, site, area: dict, plans) -> dict:
+    offers = []
+    for p in plans:
+        offer = {
+            "@type": "Offer",
+            "name": p.name,
+            "description": p.tagline,
+            "priceCurrency": "INR",
+            "url": _full(request, "order") + f"?plan={p.slug}",
+            "availability": "https://schema.org/InStock",
+            "category": p.category_label,
+        }
+        if not p.price_on_request:
+            offer["price"] = str(p.price)
+        offers.append(offer)
+    return {
+        "@context": "https://schema.org",
+        "@type": "Service",
+        "@id": canonical(request) + "#service",
+        "name": f"Tiffin service in {area['name']}",
+        "serviceType": "Homemade vegetarian tiffin service",
+        "description": area["description"],
+        "provider": {"@id": _full(request, "home") + "#business"},
+        "areaServed": {"@type": "Place", "name": f"{area['name']}, {site.state}, India"},
+        "hasOfferCatalog": {
+            "@type": "OfferCatalog",
+            "name": f"Tiffin plans for {area['name']}",
+            "itemListElement": offers,
+        },
+    }
 
 
 def menu_jsonld(request, site, todays_lunch, todays_dinner) -> dict | None:

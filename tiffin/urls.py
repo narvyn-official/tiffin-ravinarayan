@@ -8,6 +8,7 @@ urlpatterns = [
     path("", views.home, name="home"),
     path("menu/", views.menu, name="menu"),
     path("order/", views.order, name="order"),
+    path("tiffin-service-in-<slug:area_slug>/", views.location_page, name="location_page"),
     path("order/success/<str:code>/", views.order_success, name="order_success"),
 
     # SEO

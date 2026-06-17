@@ -50,7 +50,7 @@ class SiteSettings(models.Model):
 
     Use SiteSettings.get() to fetch (auto-creates with defaults).
     """
-    business_name = models.CharField(max_length=120, default="Ravinarayan PG & Tiffin Service")
+    business_name = models.CharField(max_length=120, default="Ravinarayan PG & Tiffin Services")
     short_name = models.CharField(max_length=60, default="Ravinarayan Tiffin",
                                    help_text="Used in compact spots like the nav.")
     tagline = models.CharField(max_length=200, blank=True,
@@ -63,19 +63,27 @@ class SiteSettings(models.Model):
         help_text="International format, digits only — no '+' or spaces. e.g. 919876543210",
     )
     email = models.EmailField(default="orders@ravinarayan.example")
-    address = models.CharField(max_length=300, default="Metcity, Bahadurgarh, Jhajjar district, Haryana 124507")
+    address = models.CharField(max_length=300, default="7A, Yakubpur, Jhajjar, Haryana 124103")
     # Split address pieces for proper schema.org PostalAddress + local SEO
     city = models.CharField(max_length=80, default="Jhajjar")
     state = models.CharField(max_length=80, default="Haryana")
-    postal_code = models.CharField(max_length=12, default="124507")
+    postal_code = models.CharField(max_length=12, default="124103")
     country = models.CharField(max_length=80, default="India")
     country_code = models.CharField(max_length=2, default="IN", help_text="ISO 2-letter — e.g. IN, US.")
     hours = models.CharField(max_length=120, default="Mon – Sat, 10:00 AM – 9:00 PM")
 
     instagram_url = models.URLField(blank=True)
     facebook_url = models.URLField(blank=True)
-    google_maps_url = models.URLField(blank=True, help_text="Your Google Business Profile / maps listing URL.")
-    google_business_url = models.URLField(blank=True, help_text="Your Google Business Profile sharable link.")
+    google_maps_url = models.URLField(
+        blank=True,
+        default="https://www.google.com/maps?cid=16202019902653058804",
+        help_text="Your Google Business Profile / maps listing URL.",
+    )
+    google_business_url = models.URLField(
+        blank=True,
+        default="https://www.google.com/maps?cid=16202019902653058804",
+        help_text="Your Google Business Profile sharable link.",
+    )
 
     # SEO / analytics
     ga_measurement_id = models.CharField(
@@ -85,31 +93,31 @@ class SiteSettings(models.Model):
     seo_keywords = models.CharField(
         max_length=400, blank=True,
         default=(
-            "tiffin service, tiffin service in Metcity, tiffin service in Yakubpur, "
-            "tiffin service near me, tiffin near me, homemade tiffin Metcity, "
-            "veg tiffin service, daily tiffin service, monthly tiffin service, "
-            "office lunch tiffin, PG tiffin service, dabba service Jhajjar, "
-            "lunch tiffin, dinner tiffin, ghar ka khana"
+            "tiffin service, tiffin service near me, tiffin service in Metcity, "
+            "tiffin service in Yakubpur, tiffin service in Jhajjar, homemade tiffin service, "
+            "veg tiffin service, monthly tiffin service, daily tiffin service, "
+            "lunch tiffin service, dinner tiffin service, PG tiffin service, "
+            "office lunch tiffin, dabba service, ghar ka khana"
         ),
         help_text="Comma-separated keywords. Used in meta keywords + helps drive copy.",
     )
     site_description = models.CharField(
         max_length=320, blank=True,
         default=(
-            "Fresh homemade veg tiffin service in Metcity, Yakubpur and Jhajjar. "
-            "Daily tiffin ₹80, monthly lunch-only or dinner-only ₹2000, "
-            "lunch+dinner ₹3500, rice bowl ₹60. Order online or WhatsApp."
+            "Homemade veg tiffin service in Metcity, Yakubpur and Jhajjar. Daily tiffin "
+            "₹80, monthly plans from ₹2000, lunch and dinner delivery, rice bowls and snacks. "
+            "Order online."
         ),
         help_text="160-300 chars. Used as the site-wide default meta description.",
     )
 
     # --- Delivery zone (geofence) ---
     delivery_center_lat = models.DecimalField(
-        max_digits=9, decimal_places=6, null=True, blank=True,
+        max_digits=9, decimal_places=6, null=True, blank=True, default="28.484427",
         help_text="Latitude of your kitchen / business hub. Leave blank to disable geofencing.",
     )
     delivery_center_lng = models.DecimalField(
-        max_digits=9, decimal_places=6, null=True, blank=True,
+        max_digits=9, decimal_places=6, null=True, blank=True, default="76.784015",
         help_text="Longitude of your kitchen / business hub.",
     )
     delivery_radius_km = models.DecimalField(

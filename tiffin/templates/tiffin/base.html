@@ -8,17 +8,20 @@
   <title>{% block title %}{{ page_title|default:SITE.business_name }}{% endblock %}</title>
   <meta name="description" content="{% block description %}{{ page_description|default:SITE.site_description }}{% endblock %}" />
   {% if SITE.seo_keywords %}<meta name="keywords" content="{{ SITE.seo_keywords }}">{% endif %}
+  <meta name="language" content="en-IN" />
 
   {# robots: indexable on public pages, "noindex" on transactional/admin via {% block robots %} #}
   <meta name="robots" content="{% block robots %}index, follow, max-image-preview:large{% endblock %}" />
+  <meta name="googlebot" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
   <meta name="author" content="{{ SITE.business_name }}" />
 
   <link rel="canonical" href="{% block canonical %}{{ canonical_url }}{% endblock %}" />
+  <link rel="alternate" hreflang="en-IN" href="{{ canonical_url }}" />
 
   {# Geo meta tags for local search engines #}
   {% if SITE.delivery_center_lat and SITE.delivery_center_lng %}
-  <meta name="geo.region" content="{{ SITE.country_code }}-{{ SITE.state }}" />
-  <meta name="geo.placename" content="{{ SITE.city }}" />
+  <meta name="geo.region" content="IN-HR" />
+  <meta name="geo.placename" content="Yakubpur, Jhajjar, Haryana" />
   <meta name="geo.position" content="{{ SITE.delivery_center_lat }};{{ SITE.delivery_center_lng }}" />
   <meta name="ICBM" content="{{ SITE.delivery_center_lat }}, {{ SITE.delivery_center_lng }}" />
   {% endif %}
@@ -30,6 +33,7 @@
   <meta property="og:description" content="{% block og_description %}{{ page_description|default:SITE.site_description }}{% endblock %}" />
   <meta property="og:url" content="{{ canonical_url }}" />
   <meta property="og:image" content="{% block og_image %}{{ request.scheme }}://{{ request.get_host }}{% asset 'img/logo.png' %}{% endblock %}" />
+  <meta property="og:image:alt" content="{% block og_image_alt %}{{ SITE.business_name }} homemade tiffin service in Metcity, Yakubpur and Jhajjar{% endblock %}" />
   <meta property="og:locale" content="en_IN" />
 
   {# Twitter card #}
@@ -37,6 +41,7 @@
   <meta name="twitter:title" content="{% block tw_title %}{{ page_title|default:SITE.business_name }}{% endblock %}" />
   <meta name="twitter:description" content="{% block tw_description %}{{ page_description|default:SITE.site_description }}{% endblock %}" />
   <meta name="twitter:image" content="{% block tw_image %}{{ request.scheme }}://{{ request.get_host }}{% asset 'img/logo.png' %}{% endblock %}" />
+  <meta name="twitter:image:alt" content="{% block tw_image_alt %}{{ SITE.business_name }} homemade tiffin service in Metcity, Yakubpur and Jhajjar{% endblock %}" />
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>

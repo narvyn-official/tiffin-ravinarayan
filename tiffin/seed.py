@@ -3,7 +3,7 @@ Seed data for first-time setup. Used by the data migration.
 Owners can edit everything in /django-admin/ after seeding.
 """
 
-DEFAULT_AREAS = ["Metcity", "Yakubpur", "Bahadurgarh", "Farrukhnagar"]
+DEFAULT_AREAS = ["Metcity", "Yakubpur", "Jhajjar"]
 
 DEFAULT_PLANS = [
     {

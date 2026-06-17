@@ -3,7 +3,7 @@ from urllib.parse import quote
 from django.contrib import messages
 from django.contrib.auth import authenticate, login as auth_login, logout as auth_logout
 from django.contrib.auth.decorators import login_required, user_passes_test
-from django.http import HttpResponse
+from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils import timezone
@@ -15,6 +15,7 @@ from . import seo
 from .catalog import visible_plans
 from .forms import OrderForm, TIFFIN_DINNER_CUTOFF, TIFFIN_LUNCH_CUTOFF
 from .geo import MAX_DELIVERY_KM
+from .local_seo import SERVICE_AREAS
 from .models import Addon, DailyMenu, DeliveryArea, Order, Plan, SiteSettings
 
 
@@ -33,8 +34,8 @@ FAQS = [
     ),
     (
         "Do you deliver near me?",
-        "We currently deliver in Metcity, Yakubpur, Bahadurgarh and Farrukhnagar (Jhajjar district, "
-        "Haryana). On the order page, tap 'Set delivery location', search for your address or use "
+        "We currently deliver in Metcity, Yakubpur and Jhajjar, Haryana. On the order page, "
+        "tap 'Set delivery location', search for your address or use "
         "GPS — the map will show whether you're inside our 4 km delivery circle. If you're outside, you "
         "can still pick up from the counter."
     ),
@@ -108,14 +109,13 @@ def home(request):
     # JSON-LD for SEO: a restaurant snippet, today's menu, and an FAQ page
     jsonld = [
         seo.restaurant_jsonld(request, site, areas, plans),
+        seo.website_jsonld(request, site),
         seo.faq_jsonld(FAQS),
     ]
     menu_payload = seo.menu_jsonld(request, site, lunch, dinner)
     if menu_payload:
         jsonld.append(menu_payload)
 
-    # Names of active areas, used in concise meta description.
-    area_names = ", ".join(a.name for a in areas[:3])
     ctx = {
         "plans": plans,
         "todays_lunch": lunch,
@@ -125,11 +125,11 @@ def home(request):
         "areas": areas,
         "faqs": FAQS,
         # ≤60 chars title — keyword + locale + brand
-        "page_title": "Tiffin Service in Metcity | Ravinarayan Tiffin",
+        "page_title": "Tiffin Service in Metcity, Yakubpur & Jhajjar",
         # ~150 chars meta description
         "page_description": (
-            f"Fresh homemade tiffin service in Metcity, Yakubpur and {site.city}. "
-            f"Daily veg tiffin ₹80, monthly tiffin from ₹2000, rice bowl ₹60. Order near you."
+            "Homemade veg tiffin service in Metcity, Yakubpur and Jhajjar. "
+            "Daily tiffin ₹80, monthly plans from ₹2000, rice bowls and snacks. Order online."
         ),
         "jsonld_blobs": [seo.dump(j) for j in jsonld if j],
         "canonical_url": seo.canonical(request),
@@ -146,6 +146,7 @@ def menu(request):
     areas = list(DeliveryArea.objects.filter(is_active=True))
     jsonld = [
         seo.restaurant_jsonld(request, site, areas, plans),
+        seo.website_jsonld(request, site),
         seo.breadcrumb_jsonld([
             ("Home", request.build_absolute_uri(reverse("home"))),
             ("Plans", request.build_absolute_uri(reverse("menu"))),
@@ -154,12 +155,47 @@ def menu(request):
     response = render(request, "tiffin/menu.html", {
         "plans": plans,
         # ≤60 chars
-        "page_title": f"Tiffin Plans in Metcity | ₹80 Meals & Monthly Tiffin",
+        "page_title": "Tiffin Plans & Prices in Jhajjar | ₹80 Veg Tiffin",
         # ~150 chars
         "page_description": (
-            f"Daily Tiffin at ₹80, monthly lunch-only or dinner-only ₹2000, "
-            f"lunch+dinner ₹3500, rice bowl ₹60, and snacks on order in {site.city}."
+            "See tiffin plans and prices for Metcity, Yakubpur and Jhajjar: "
+            "₹80 daily tiffin, ₹2000 monthly single meal, ₹60 rice bowl and snacks."
         ),
+        "jsonld_blobs": [seo.dump(j) for j in jsonld if j],
+        "canonical_url": seo.canonical(request),
+    })
+    if not request.user.is_authenticated:
+        _set_anonymous_cache(response)
+    return response
+
+
+def location_page(request, area_slug: str):
+    area = SERVICE_AREAS.get(area_slug)
+    if area is None:
+        raise Http404("Unknown service area")
+
+    lunch, dinner = _todays_menu()
+    site = SiteSettings.get()
+    plans = list(visible_plans())
+    areas = list(DeliveryArea.objects.filter(is_active=True))
+    jsonld = [
+        seo.restaurant_jsonld(request, site, areas, plans),
+        seo.website_jsonld(request, site),
+        seo.service_jsonld(request, site, area, plans),
+        seo.breadcrumb_jsonld([
+            ("Home", request.build_absolute_uri(reverse("home"))),
+            (area["headline"], request.build_absolute_uri(reverse("location_page", args=[area_slug]))),
+        ]),
+    ]
+
+    response = render(request, "tiffin/location.html", {
+        "area": area,
+        "area_slug": area_slug,
+        "plans": plans,
+        "todays_lunch": lunch,
+        "todays_dinner": dinner,
+        "page_title": area["title"],
+        "page_description": area["description"],
         "jsonld_blobs": [seo.dump(j) for j in jsonld if j],
         "canonical_url": seo.canonical(request),
     })
@@ -226,6 +262,17 @@ def order(request):
     else:
         form = OrderForm(initial=initial)
 
+    site = SiteSettings.get()
+    areas = list(DeliveryArea.objects.filter(is_active=True))
+    jsonld = [
+        seo.restaurant_jsonld(request, site, areas, plans),
+        seo.website_jsonld(request, site),
+        seo.breadcrumb_jsonld([
+            ("Home", request.build_absolute_uri(reverse("home"))),
+            ("Order Tiffin Online", request.build_absolute_uri(reverse("order"))),
+        ]),
+    ]
+
     return render(
         request,
         "tiffin/order_form.html",
@@ -238,6 +285,13 @@ def order(request):
             "tiffin_lunch_cutoff_minutes": _minutes_after_midnight(TIFFIN_LUNCH_CUTOFF),
             "tiffin_dinner_cutoff_minutes": _minutes_after_midnight(TIFFIN_DINNER_CUTOFF),
             "max_delivery_km": MAX_DELIVERY_KM,
+            "page_title": "Order Tiffin Online in Metcity | Ravinarayan Tiffin",
+            "page_description": (
+                "Order tiffin online in Metcity, Yakubpur and Jhajjar. Daily veg tiffin "
+                "₹80, monthly plans from ₹2000, rice bowl ₹60 and group snacks."
+            ),
+            "jsonld_blobs": [seo.dump(j) for j in jsonld if j],
+            "canonical_url": seo.canonical(request),
         },
     )
 

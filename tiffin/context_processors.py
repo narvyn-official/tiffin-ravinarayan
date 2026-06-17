@@ -8,9 +8,15 @@ def business_info(request):
         areas = DeliveryArea.objects.filter(is_active=True)
     except Exception:
         # Migrations haven't run yet — keep templates from crashing.
-        return {"SITE": None, "AREAS": [], "WHATSAPP_URL": "#"}
+        return {
+            "SITE": None,
+            "AREAS": [],
+            "WHATSAPP_URL": "#",
+            "canonical_url": request.build_absolute_uri(request.path),
+        }
     return {
         "SITE": site,
         "AREAS": areas,
         "WHATSAPP_URL": site.whatsapp_url,
+        "canonical_url": request.build_absolute_uri(request.path),
     }

@@ -10,8 +10,8 @@
   <div class="container hero-inner">
     <div class="hero-text">
       <span class="eyebrow">🍃 Cooked fresh today</span>
-      <h1>Tiffin Service in Metcity — <span class="accent">Fresh Homemade Meals Delivered Daily</span></h1>
-      <p class="lead">Affordable veg tiffin service in Metcity, Yakubpur and {{ SITE.city }} for offices, PGs, students and working professionals. ₹80 tiffin, ₹60 rice bowl, monthly packages from ₹2000.</p>
+      <h1>Tiffin Service in Metcity, Yakubpur &amp; Jhajjar — <span class="accent">Fresh Homemade Meals Delivered Daily</span></h1>
+      <p class="lead">Affordable homemade veg tiffin service for Metcity, Yakubpur and Jhajjar. Daily tiffin ₹80, rice bowl ₹60, monthly lunch-only or dinner-only plans from ₹2000.</p>
       <div class="hero-cta">
         <a href="{{ order_url }}" class="btn btn-primary btn-lg">Order Now</a>
         <a href="{{ WHATSAPP_URL }}" class="btn btn-whatsapp btn-lg" target="_blank" rel="noopener">💬 Order on WhatsApp</a>
@@ -30,14 +30,14 @@
 <section class="section section-cream section-intro">
   <div class="container intro-grid">
     <div class="intro-text">
-      <h2>Homestyle veg tiffin service in Metcity and {{ SITE.city }}</h2>
-      <p>{{ SITE.business_name }} is a small-batch tiffin service cooking fresh, balanced vegetarian meals every morning. Whether you're a working professional looking for an honest <strong>office lunch tiffin</strong>, a student or PG resident wanting a <strong>monthly tiffin plan</strong>, or just searching for <strong>tiffin service near me</strong> that tastes like home, we've got you covered.</p>
-      <p>Each tiffin includes 4 fresh roti, sabzi, dal, rice and salad, cooked in less oil with balanced spice. Lunch is delivered by 1 PM, dinner by 8:30 PM. Order daily, weekly or save with the <strong>PG Monthly Plan</strong>: ₹3500 for lunch + dinner, or ₹2000 for only lunch or only dinner. No app to install, no online payment, just confirm on WhatsApp.</p>
+      <h2>Homemade veg tiffin service near you</h2>
+      <p>{{ SITE.business_name }} is a small-batch tiffin service in Yakubpur serving Metcity and Jhajjar with fresh, balanced vegetarian meals. Whether you're a working professional looking for an honest <strong>office lunch tiffin</strong>, a student or PG resident wanting a <strong>monthly tiffin service</strong>, or just searching for <strong>tiffin service near me</strong> that tastes like home, we've got you covered.</p>
+      <p>Each tiffin includes 4 fresh roti, sabzi, dal, rice and salad, cooked in less oil with balanced spice. Lunch is delivered by 1 PM, dinner by 8:30 PM. Order daily, choose today's rice bowl, or save with the <strong>PG Monthly Plan</strong>: ₹3500 for lunch + dinner, or ₹2000 for only lunch or only dinner. No app to install, no online payment, just confirm on WhatsApp.</p>
       <ul class="intro-stats">
         <li><strong>2</strong><span>Plans</span></li>
         <li><strong>10+</strong><span>Add-ons</span></li>
         <li><strong>FSSAI</strong><span>Compliant</span></li>
-        <li><strong>{{ SITE.city }}</strong><span>Service area</span></li>
+        <li><strong>3 areas</strong><span>Metcity, Yakubpur, Jhajjar</span></li>
       </ul>
     </div>
   </div>
@@ -186,8 +186,8 @@
 <section class="section" id="areas">
   <div class="container">
     <header class="section-head">
-      <h2>Delivery Areas</h2>
-      <p class="muted">We deliver across these neighbourhoods. Don't see yours? Call us — we expand often.</p>
+      <h2>Tiffin Delivery Areas</h2>
+      <p class="muted">Local tiffin delivery and pickup from Yakubpur for Metcity, Yakubpur and Jhajjar.</p>
     </header>
     <div class="areas-layout">
       <div class="areas-image">
@@ -198,9 +198,14 @@
       </div>
       <ul class="areas-grid">
         {% for area in areas %}
-          <li class="area-pill">📍 {{ area.name }}</li>
+          <li><a class="area-pill" href="{% url 'location_page' area.name|slugify %}">📍 Tiffin service in {{ area.name }}</a></li>
         {% endfor %}
       </ul>
+    </div>
+    <div class="plans-prose local-copy">
+      <h3>Searching for tiffin service near me?</h3>
+      <p>Ravinarayan Tiffin focuses on nearby delivery instead of far-away orders, so meals stay fresh and timings stay practical. We serve daily tiffin, lunch tiffin, dinner tiffin, monthly tiffin, PG tiffin, office lunch and dabba-style ghar ka khana across Metcity, Yakubpur and Jhajjar.</p>
+      <p>Use the order form to set your delivery pin. Delivery is free up to 2 km, then ₹10 per 2 km slab, with a maximum delivery distance of 4 km from our Yakubpur kitchen.</p>
     </div>
   </div>
 </section>

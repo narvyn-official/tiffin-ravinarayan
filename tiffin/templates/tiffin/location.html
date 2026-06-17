@@ -1,0 +1,104 @@
+{% extends "tiffin/base.html" %}
+{% load static %}
+{% block title %}{{ page_title }}{% endblock %}
+{% block description %}{{ page_description }}{% endblock %}
+
+{% block content %}
+{% url 'order' as order_url %}
+{% url 'menu' as menu_url %}
+
+<section class="section section-page-head local-hero">
+  <div class="container">
+    <p class="eyebrow">Fresh homemade veg meals near you</p>
+    <h1>{{ area.headline }}</h1>
+    <p class="muted">{{ area.intro }}</p>
+    <div class="hero-cta">
+      <a href="{{ order_url }}" class="btn btn-primary btn-lg">Order Tiffin</a>
+      <a href="{{ SITE.google_maps_url }}" class="btn btn-ghost btn-lg" target="_blank" rel="noopener">View on Google Maps</a>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container intro-grid">
+    <div class="intro-text">
+      <h2>Homemade tiffin delivery for {{ area.name }}</h2>
+      <p>{{ area.detail }}</p>
+      <p>Daily Tiffin is ₹80 per meal. Monthly lunch-only or dinner-only plans start at ₹2000, lunch + dinner is ₹3500, and today's rice bowl is ₹60. Delivery is free up to 2 km, then ₹10 per 2 km slab, with delivery available up to 4 km from our Yakubpur kitchen.</p>
+      <ul class="intro-stats">
+        <li><strong>₹80</strong><span>Daily tiffin</span></li>
+        <li><strong>₹2000</strong><span>Monthly single meal</span></li>
+        <li><strong>4 km</strong><span>Delivery limit</span></li>
+        <li><strong>9 PM</strong><span>Rice bowl cutoff</span></li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section class="section section-cream">
+  <div class="container">
+    <header class="section-head">
+      <h2>Popular searches for {{ area.name }}</h2>
+      <p class="muted">These are the food-ordering terms this page is built around.</p>
+    </header>
+    <ul class="areas-grid keyword-grid">
+      {% for keyword in area.keyword_focus %}
+        <li class="area-pill">{{ keyword }}</li>
+      {% endfor %}
+    </ul>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    <header class="section-head">
+      <h2>Tiffin plans available in {{ area.name }}</h2>
+      <p class="muted">Choose daily meals, monthly tiffin, rice bowls or snacks and confirm on WhatsApp.</p>
+    </header>
+    <div class="plans-grid">
+      {% for plan in plans %}
+        {% include "tiffin/components/plan_card.html" with plan=plan %}
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<section class="section section-cream">
+  <div class="container">
+    <header class="section-head">
+      <h2>How to order tiffin in {{ area.name }}</h2>
+      <p class="muted">A simple local ordering flow for lunch, dinner and monthly meals.</p>
+    </header>
+    <div class="steps-grid">
+      <div class="step-tile">
+        <div class="step-meta"><span class="step-badge">01</span><h3>Pick your meal</h3><p class="muted">Daily Tiffin, PG Monthly Plan, rice bowl or group snacks.</p></div>
+      </div>
+      <div class="step-tile">
+        <div class="step-meta"><span class="step-badge">02</span><h3>Set your location</h3><p class="muted">Use the map pin to confirm delivery distance inside the 4 km zone.</p></div>
+      </div>
+      <div class="step-tile">
+        <div class="step-meta"><span class="step-badge">03</span><h3>Confirm on WhatsApp</h3><p class="muted">We receive the order details and confirm timing, price and delivery.</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="cta-strip">
+  <div class="container cta-inner">
+    <div class="cta-text">
+      <h2>Order tiffin service in {{ area.name }}</h2>
+      <p>Fresh ghar ka khana from Ravinarayan Tiffin, delivered locally.</p>
+      <div class="cta-actions">
+        <a href="{{ order_url }}" class="btn btn-primary btn-lg">Order Now</a>
+        <a href="{{ menu_url }}" class="btn btn-ghost btn-lg">View Plans</a>
+      </div>
+    </div>
+    <div class="cta-image" aria-hidden="true">
+      <img src="{% static 'img/plan-daily.webp' %}"
+           alt="Daily veg tiffin meal from {{ SITE.short_name }} for {{ area.name }}"
+           loading="lazy" decoding="async"
+           onerror="this.parentElement.style.display='none';">
+    </div>
+  </div>
+</section>
+{% endblock %}

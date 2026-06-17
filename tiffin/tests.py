@@ -231,4 +231,50 @@ class SeededBusinessDataTests(TestCase):
         self.assertEqual(monthly.monthly_single_meal_price, 2000)
         self.assertIn("₹2000/month", monthly.items)
         self.assertIn("tiffin service in Metcity", site.seo_keywords)
+        self.assertIn("tiffin service in Jhajjar", site.seo_keywords)
         self.assertIn("Daily tiffin ₹80", site.site_description)
+        self.assertEqual(site.business_name, "Ravinarayan PG & Tiffin Services")
+        self.assertEqual(site.address, "7A, Yakubpur, Jhajjar, Haryana 124103")
+        self.assertEqual(site.postal_code, "124103")
+        self.assertEqual(str(site.delivery_center_lat), "28.484427")
+        self.assertEqual(str(site.delivery_center_lng), "76.784015")
+        self.assertEqual(site.google_maps_url, "https://www.google.com/maps?cid=16202019902653058804")
+
+        active_areas = list(DeliveryArea.objects.filter(is_active=True).values_list("name", flat=True))
+        self.assertEqual(active_areas, ["Metcity", "Yakubpur", "Jhajjar"])
+
+
+class PublicSeoTests(TestCase):
+    def test_public_pages_render_complete_local_seo_metadata(self):
+        response = self.client.get("/")
+        self.assertContains(response, "<title>Tiffin Service in Metcity, Yakubpur &amp; Jhajjar</title>")
+        self.assertContains(response, 'meta name="geo.region" content="IN-HR"')
+        self.assertContains(response, 'rel="alternate" hreflang="en-IN"')
+        self.assertContains(response, '"@type":"WebSite"')
+        self.assertContains(response, '"keywords":"tiffin service, tiffin service near me')
+        self.assertContains(response, "Tiffin service in Metcity")
+        self.assertContains(response, "Tiffin service in Yakubpur")
+        self.assertContains(response, "Tiffin service in Jhajjar")
+
+        order = self.client.get("/order/")
+        self.assertContains(order, "<title>Order Tiffin Online in Metcity")
+        self.assertContains(order, '<link rel="canonical" href="http://testserver/order/"')
+        self.assertContains(order, '"@type":"BreadcrumbList"')
+
+    def test_location_pages_and_sitemap_are_indexable(self):
+        for slug, area in [
+            ("metcity", "Metcity"),
+            ("yakubpur", "Yakubpur"),
+            ("jhajjar", "Jhajjar"),
+        ]:
+            response = self.client.get(f"/tiffin-service-in-{slug}/")
+            self.assertEqual(response.status_code, 200)
+            self.assertContains(response, f"Tiffin Service in {area}")
+            self.assertContains(response, '"@type":"Service"')
+            self.assertContains(response, f"tiffin service in {area}")
+            self.assertContains(response, f'<link rel="canonical" href="http://testserver/tiffin-service-in-{slug}/"')
+
+        sitemap = self.client.get("/sitemap.xml")
+        self.assertContains(sitemap, "https://testserver/tiffin-service-in-metcity/")
+        self.assertContains(sitemap, "https://testserver/tiffin-service-in-yakubpur/")
+        self.assertContains(sitemap, "https://testserver/tiffin-service-in-jhajjar/")

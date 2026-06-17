@@ -17,7 +17,9 @@
     <div>
       <h4>We Deliver To</h4>
       <ul class="plain chips">
-        {% for a in AREAS %}<li class="chip">{{ a.name }}</li>{% endfor %}
+        {% for a in AREAS %}
+          <li><a class="chip" href="{% url 'location_page' a.name|slugify %}">{{ a.name }}</a></li>
+        {% endfor %}
       </ul>
     </div>
   </div>
