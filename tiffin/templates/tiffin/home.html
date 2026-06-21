@@ -10,7 +10,7 @@
   <div class="container hero-inner">
     <div class="hero-text">
       <span class="eyebrow">🍃 Cooked fresh today</span>
-      <h1>Tiffin Service in Metcity, Yakubpur &amp; Jhajjar — <span class="accent">Fresh Homemade Meals Delivered Daily</span></h1>
+      <h1>Tiffin Service in Metcity, Yakubpur &amp; Jhajjar — Fresh Homemade Meals Delivered Daily</h1>
       <p class="lead">Affordable homemade veg tiffin service for Metcity, Yakubpur and Jhajjar. Daily tiffin ₹80, rice bowl ₹60, monthly lunch-only or dinner-only plans from ₹2000.</p>
       <div class="hero-cta">
         <a href="{{ order_url }}" class="btn btn-primary btn-lg">Order Now</a>
@@ -56,7 +56,7 @@
         <img src="{% static 'img/today-spread.webp' %}"
              alt="Homemade tiffin spread with chapati, dal, sabzi, rice and salad — today's menu at {{ SITE.short_name }}, {{ SITE.city }}"
              width="1100" height="825"
-             loading="lazy" decoding="async"
+             loading="lazy" decoding="async" fetchpriority="low"
              onerror="this.parentElement.style.display='none';">
         <span class="today-date">📅 {{ today_label }}</span>
         <span class="today-fresh-tag">🌿 Cooked this morning</span>
@@ -140,28 +140,28 @@
         <div class="step-img"><img src="{% static 'img/cooking.webp' %}"
              alt="Chef preparing fresh homemade vegetarian tiffin in {{ SITE.short_name }}'s home kitchen"
              width="1100" height="619"
-             loading="lazy" decoding="async" onerror="this.parentElement.classList.add('no-image')"></div>
+             loading="lazy" decoding="async" fetchpriority="low" onerror="this.parentElement.classList.add('no-image')"></div>
         <div class="step-meta"><span class="step-badge">01</span><h3>Cooked Fresh</h3><p class="muted">Ingredients sourced daily, cooked the same morning in our home kitchen.</p></div>
       </div>
       <div class="step-tile">
         <div class="step-img"><img src="{% static 'img/kitchen.webp' %}"
              alt="FSSAI-compliant tiffin kitchen — staff in masks, hairnets and gloves packing fresh meals"
              width="1100" height="825"
-             loading="lazy" decoding="async" onerror="this.parentElement.classList.add('no-image')"></div>
+             loading="lazy" decoding="async" fetchpriority="low" onerror="this.parentElement.classList.add('no-image')"></div>
         <div class="step-meta"><span class="step-badge">02</span><h3>Packed Hygienically</h3><p class="muted">Sealed steel tiffins. Staff in gloves, masks and hairnets — FSSAI compliant.</p></div>
       </div>
       <div class="step-tile">
         <div class="step-img"><img src="{% static 'img/delivery.webp' %}"
              alt="Tiffin delivery agent handing a fresh meal to a customer at the door in {{ SITE.city }}"
              width="1100" height="825"
-             loading="lazy" decoding="async" onerror="this.parentElement.classList.add('no-image')"></div>
+             loading="lazy" decoding="async" fetchpriority="low" onerror="this.parentElement.classList.add('no-image')"></div>
         <div class="step-meta"><span class="step-badge">03</span><h3>Delivered On Time</h3><p class="muted">Lunch by 1 PM, dinner by 8:30 PM. To your office, PG or home.</p></div>
       </div>
       <div class="step-tile">
         <div class="step-img"><img src="{% static 'img/enjoy.webp' %}"
              alt="Customer enjoying a hot homemade vegetarian tiffin lunch at home"
              width="1100" height="825"
-             loading="lazy" decoding="async" onerror="this.parentElement.classList.add('no-image')"></div>
+             loading="lazy" decoding="async" fetchpriority="low" onerror="this.parentElement.classList.add('no-image')"></div>
         <div class="step-meta"><span class="step-badge">04</span><h3>Enjoy Ghar Ka Khaana</h3><p class="muted">Hot, balanced, homestyle taste — like maa ke haath ka khaana.</p></div>
       </div>
     </div>
@@ -199,7 +199,7 @@
         <img src="{% static 'img/areas-map.webp' %}"
              alt="{{ SITE.short_name }} tiffin delivery zone map covering Metcity and Yakubpur in {{ SITE.city }} district"
              width="1100" height="619"
-             loading="lazy" decoding="async"
+             loading="lazy" decoding="async" fetchpriority="low"
              onerror="this.parentElement.style.display='none';">
       </div>
       <ul class="areas-grid">
@@ -249,7 +249,7 @@
       <img src="{% static 'img/whatsapp.webp' %}"
            alt="Order tiffin via WhatsApp — {{ SITE.short_name }} chat preview"
            width="1100" height="825"
-           loading="lazy" decoding="async"
+           loading="lazy" decoding="async" fetchpriority="low"
            onerror="this.parentElement.style.display='none';">
     </div>
   </div>

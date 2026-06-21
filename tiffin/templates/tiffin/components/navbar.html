@@ -30,11 +30,11 @@
       <button class="nav-drawer-close" aria-label="Close menu" data-nav-close>×</button>
 
       <nav class="nav-links" aria-label="Primary">
-        <a href="{{ home_url }}" class="nav-link {% if request.path == home_url %}is-active{% endif %}">Home</a>
-        <a href="{{ menu_url }}" class="nav-link {% if request.path == menu_url %}is-active{% endif %}">Plans</a>
+        <a href="{{ home_url }}" class="nav-link {% if request.path == home_url %}is-active{% endif %}">Tiffin Home</a>
+        <a href="{{ menu_url }}" class="nav-link {% if request.path == menu_url %}is-active{% endif %}">Tiffin Plans</a>
         <a href="{{ home_url }}#today" class="nav-link">Today's Menu</a>
         <a href="{{ home_url }}#why" class="nav-link">Why Us</a>
-        <a href="{{ home_url }}#contact" class="nav-link">Contact</a>
+        <a href="{{ home_url }}#contact" class="nav-link">Contact Us</a>
       </nav>
 
       <div class="nav-actions">
@@ -42,9 +42,9 @@
           <span class="nav-phone-icon" aria-hidden="true">📞</span>
           <span class="nav-phone-text">{{ SITE.phone }}</span>
         </a>
-        <a href="{{ order_url }}" class="btn btn-primary nav-order-btn">Order Now</a>
+        <a href="{{ order_url }}" class="btn btn-primary nav-order-btn">Order Tiffin</a>
         {% if request.user.is_authenticated and request.user.is_staff %}
-          <a href="{% url 'admin_orders' %}" class="btn btn-ghost btn-sm nav-admin-btn">Admin</a>
+          <a href="{% url 'admin_orders' %}" class="btn btn-ghost btn-sm nav-admin-btn">Staff Orders</a>
         {% endif %}
       </div>
     </div>

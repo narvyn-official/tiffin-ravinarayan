@@ -108,7 +108,7 @@ def restaurant_jsonld(request, site, areas, plans) -> dict:
         "telephone": site.phone,
         "email": site.email,
         "image": [
-            absolute_url(request, "/static/img/hero.webp"),
+            absolute_url(request, "/static/img/hero.png"),
             absolute_url(request, "/static/img/plan-daily.webp"),
             absolute_url(request, "/static/img/logo.png"),
         ],

@@ -5,7 +5,7 @@
     <img src="{% static 'img/' %}{{ plan.image_path_webp }}"
          alt="{{ plan.name }} — {{ plan.category_label }} from {{ SITE.business_name }}"
          width="{{ plan.image_width }}" height="{{ plan.image_height }}"
-         loading="lazy" decoding="async"
+         loading="lazy" decoding="async" fetchpriority="low"
          onerror="this.parentElement.classList.add('no-image'); this.remove();">
   </div>
   {% if plan.badge %}<span class="plan-badge">{{ plan.badge }}</span>{% endif %}
@@ -21,6 +21,6 @@
     <ul class="plan-items">
       {% for item in plan.items_list %}<li>✓ {{ item }}</li>{% endfor %}
     </ul>
-    <a href="{{ order_url }}?plan={{ plan.slug }}" class="btn btn-primary plan-cta">Order This</a>
+    <a href="{{ order_url }}?plan={{ plan.slug }}" class="btn btn-primary plan-cta">Order {{ plan.name }}</a>
   </div>
 </article>

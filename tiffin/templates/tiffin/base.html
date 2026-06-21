@@ -31,21 +31,23 @@
   <meta property="og:title" content="{% block og_title %}{{ page_title|default:SITE.business_name }}{% endblock %}" />
   <meta property="og:description" content="{% block og_description %}{{ page_description|default:SITE.site_description }}{% endblock %}" />
   <meta property="og:url" content="{{ canonical_url }}" />
-  <meta property="og:image" content="{% block og_image %}{{ request.scheme }}://{{ request.get_host }}{% asset 'img/hero.webp' %}{% endblock %}" />
-  <meta property="og:image:secure_url" content="{% block og_image_secure %}{{ request.scheme }}://{{ request.get_host }}{% asset 'img/hero.webp' %}{% endblock %}" />
+  <meta property="og:image" content="{% block og_image %}{{ request.scheme }}://{{ request.get_host }}{% asset 'img/hero.png' %}{% endblock %}" />
+  <meta property="og:image:secure_url" content="{% block og_image_secure %}{{ request.scheme }}://{{ request.get_host }}{% asset 'img/hero.png' %}{% endblock %}" />
   <meta property="og:image:alt" content="{% block og_image_alt %}{{ SITE.business_name }} homemade tiffin service in Metcity, Yakubpur and Jhajjar{% endblock %}" />
   <meta property="og:image:width" content="1100" />
   <meta property="og:image:height" content="619" />
-  <meta property="og:image:type" content="image/webp" />
+  <meta property="og:image:type" content="image/png" />
   <meta property="og:locale" content="en_IN" />
 
   {# Twitter card #}
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:url" content="{{ canonical_url }}" />
   <meta name="twitter:domain" content="{{ request.get_host }}" />
+  <meta name="twitter:site" content="@ravinarayantiffin" />
+  <meta name="twitter:creator" content="@ravinarayantiffin" />
   <meta name="twitter:title" content="{% block tw_title %}{{ page_title|default:SITE.business_name }}{% endblock %}" />
   <meta name="twitter:description" content="{% block tw_description %}{{ page_description|default:SITE.site_description }}{% endblock %}" />
-  <meta name="twitter:image" content="{% block tw_image %}{{ request.scheme }}://{{ request.get_host }}{% asset 'img/hero.webp' %}{% endblock %}" />
+  <meta name="twitter:image" content="{% block tw_image %}{{ request.scheme }}://{{ request.get_host }}{% asset 'img/hero.png' %}{% endblock %}" />
   <meta name="twitter:image:alt" content="{% block tw_image_alt %}{{ SITE.business_name }} homemade tiffin service in Metcity, Yakubpur and Jhajjar{% endblock %}" />
   <meta name="twitter:image:width" content="1100" />
   <meta name="twitter:image:height" content="619" />

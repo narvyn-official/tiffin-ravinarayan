@@ -97,7 +97,7 @@
       <img src="{% static 'img/plan-daily.webp' %}"
            alt="Daily veg tiffin meal from {{ SITE.short_name }} for {{ area.name }}"
            width="1100" height="825"
-           loading="lazy" decoding="async"
+           loading="lazy" decoding="async" fetchpriority="low"
            onerror="this.parentElement.style.display='none';">
     </div>
   </div>

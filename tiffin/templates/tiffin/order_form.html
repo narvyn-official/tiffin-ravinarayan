@@ -62,7 +62,10 @@
               <span class="plan-pick-inner">
                 {% with plan_img='img/'|add:plan.image_path_webp %}
                   <span class="plan-pick-media">
-                    <img src="{% static plan_img %}" alt="{{ plan.name }}" loading="lazy" width="320" height="180">
+                    <img src="{% static plan_img %}"
+                         alt="{{ plan.name }} {{ plan.category_label }} order option from {{ SITE.short_name }}"
+                         loading="lazy" decoding="async" fetchpriority="low"
+                         width="320" height="180">
                   </span>
                 {% endwith %}
                 {% if plan.badge %}<span class="plan-badge">{{ plan.badge }}</span>{% endif %}

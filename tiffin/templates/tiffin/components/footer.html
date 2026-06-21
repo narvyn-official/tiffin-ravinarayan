@@ -1,3 +1,4 @@
+{% url 'order' as order_url %}
 <footer class="footer" id="contact">
   <div class="container footer-grid">
     <div>
@@ -5,10 +6,10 @@
       <p class="muted">{{ SITE.tagline }}</p>
     </div>
     <div>
-      <h4>Contact</h4>
+      <div class="footer-heading">Contact Ravinarayan Tiffin</div>
       <ul class="plain">
         <li><a href="tel:{{ SITE.phone }}">📞 {{ SITE.phone }}</a></li>
-        <li><a href="{{ WHATSAPP_URL }}" target="_blank" rel="noopener">💬 WhatsApp</a></li>
+        <li><a href="{{ WHATSAPP_URL }}" target="_blank" rel="noopener">💬 Message tiffin service on WhatsApp</a></li>
         <li><a href="{{ SITE.google_business_url }}" target="_blank" rel="noopener">⭐ Review us on Google</a></li>
         <li>✉️ {{ SITE.email }}</li>
         <li>📍 {{ SITE.address }}</li>
@@ -16,11 +17,24 @@
       </ul>
     </div>
     <div>
-      <h4>We Deliver To</h4>
+      <div class="footer-heading">Local Delivery Areas</div>
       <ul class="plain chips">
         {% for a in AREAS %}
-          <li><a class="chip" href="{% url 'location_page' a.name|slugify %}">{{ a.name }}</a></li>
+          <li><a class="chip" href="{% url 'location_page' a.name|slugify %}">Tiffin in {{ a.name }}</a></li>
         {% endfor %}
+      </ul>
+    </div>
+    <div>
+      <div class="footer-heading">Popular Tiffin Orders</div>
+      <ul class="plain footer-order-links">
+        <li><a href="{{ order_url }}?meal=lunch">Lunch tiffin online order</a></li>
+        <li><a href="{{ order_url }}?meal=dinner">Dinner tiffin online order</a></li>
+        <li><a href="{{ order_url }}?plan=daily-tiffin">Daily veg tiffin booking</a></li>
+        <li><a href="{{ order_url }}?plan=pg-monthly">Monthly PG tiffin package</a></li>
+        <li><a href="{{ order_url }}?plan=rice-bowl-sunday-matar-paneer">Today rice bowl order</a></li>
+        <li><a href="{{ order_url }}?plan=samosa">Bulk samosa snack order</a></li>
+        <li><a href="{{ order_url }}?plan=burger">Burger order for groups</a></li>
+        <li><a href="{{ order_url }}?plan=bread-pakora">Bread pakora party order</a></li>
       </ul>
     </div>
   </div>
