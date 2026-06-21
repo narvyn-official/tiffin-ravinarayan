@@ -92,7 +92,7 @@
 
       <div class="success-actions">
         <a href="tel:{{ SITE.phone }}" class="btn btn-ghost btn-block">📞 Call {{ SITE.phone }}</a>
-        <a href="{% url 'review_redirect' %}" target="_blank" rel="noopener" class="btn btn-ghost btn-block">⭐ Review us on Google</a>
+        <a href="{{ SITE.google_business_url }}" target="_blank" rel="noopener" class="btn btn-ghost btn-block">⭐ Review us on Google</a>
         <a href="{% url 'home' %}" class="btn btn-link">← Back to home</a>
       </div>
 

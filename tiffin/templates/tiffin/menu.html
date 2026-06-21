@@ -12,6 +12,10 @@
 
 <section class="section">
   <div class="container">
+    <header class="section-head">
+      <h2>Choose your tiffin plan</h2>
+      <p class="muted">Compare daily meals, monthly packages, rice bowls and group snack orders.</p>
+    </header>
     <div class="plans-grid">
       {% for plan in plans %}
         {% include "tiffin/components/plan_card.html" with plan=plan %}

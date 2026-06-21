@@ -257,12 +257,26 @@ class PublicSeoTests(TestCase):
         self.assertContains(response, "Tiffin service in Metcity")
         self.assertContains(response, "Tiffin service in Yakubpur")
         self.assertContains(response, "Tiffin service in Jhajjar")
-        self.assertContains(response, 'href="/review/"')
+        self.assertContains(response, 'meta name="twitter:url" content="http://testserver/"')
+        self.assertContains(response, 'meta name="twitter:domain" content="testserver"')
+        self.assertContains(response, 'meta property="og:image:width" content="1100"')
+        self.assertContains(response, 'meta property="og:image:height" content="619"')
+        self.assertContains(response, 'meta name="twitter:image:width" content="1100"')
+        self.assertContains(response, 'meta name="twitter:image:height" content="619"')
+        self.assertContains(response, 'width="1100" height="1100"')
+        self.assertContains(response, 'width="1100" height="825"')
+        self.assertContains(response, 'href="https://share.google/kvPQQtTdyJ65cEiqi"')
+        self.assertNotContains(response, 'href="/review/"')
 
         order = self.client.get("/order/")
         self.assertContains(order, "<title>Order Tiffin Online in Metcity")
         self.assertContains(order, '<link rel="canonical" href="http://testserver/order/"')
         self.assertContains(order, '"@type":"BreadcrumbList"')
+        self.assertContains(order, "<h2>Build your order</h2>")
+        self.assertContains(order, '<h2 class="summary-title">Order summary</h2>')
+
+        menu = self.client.get("/menu/")
+        self.assertContains(menu, "<h2>Choose your tiffin plan</h2>")
 
     def test_location_pages_and_sitemap_are_indexable(self):
         for slug, area in [

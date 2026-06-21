@@ -249,6 +249,34 @@ class Plan(models.Model):
         return base
 
     @property
+    def image_dimensions(self) -> tuple[int, int]:
+        filename = self.image_path_webp
+        exact_dimensions = {
+            "plan-daily.webp": (1100, 825),
+            "plan-monthly.webp": (1100, 619),
+            "snack-samosa.webp": (1200, 658),
+            "snack-bread-pakora.webp": (1200, 699),
+            "snack-burger.webp": (1200, 699),
+        }
+        if filename in exact_dimensions:
+            return exact_dimensions[filename]
+        if filename.startswith("rice-bowl-"):
+            return (1200, 676)
+        if self.category == self.Category.RICE_BOWL:
+            return (1200, 676)
+        if self.category == self.Category.SNACK:
+            return (1200, 699)
+        return (1100, 825)
+
+    @property
+    def image_width(self) -> int:
+        return self.image_dimensions[0]
+
+    @property
+    def image_height(self) -> int:
+        return self.image_dimensions[1]
+
+    @property
     def price_label(self) -> str:
         if self.price_on_request:
             return "On request"

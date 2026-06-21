@@ -836,6 +836,17 @@ code {
   .order-grid { grid-template-columns: 1.4fr .9fr; align-items: start; }
 }
 .order-main { display: flex; flex-direction: column; gap: 18px; min-width: 0; }
+.order-flow-heading {
+  background: var(--green-50);
+  border: 1px solid var(--green-100);
+  border-radius: var(--radius);
+  padding: 14px 16px;
+}
+.order-flow-heading h2 {
+  margin: 0 0 4px;
+  font-size: 1.2rem;
+}
+.order-flow-heading p { margin: 0; }
 
 .step-card {
   background: var(--white); border: 1px solid var(--ink-100);
@@ -968,7 +979,7 @@ code {
   border-radius: var(--radius-lg); padding: 22px;
   box-shadow: var(--shadow-md);
 }
-.summary-card h3 { font-size: 1.1rem; margin-bottom: 14px; }
+.summary-card h2 { font-size: 1.1rem; margin-bottom: 14px; }
 .sum-line {
   display: flex; justify-content: space-between; gap: 8px;
   padding: 6px 0;
@@ -1129,7 +1140,7 @@ code {
   padding: 14px 18px;
   border-bottom: 1px solid var(--ink-100);
 }
-.loc-modal-head h3 { margin: 0; font-size: 1.1rem; }
+.loc-modal-head h2 { margin: 0; font-size: 1.1rem; }
 .loc-modal-close {
   background: transparent; border: 0; cursor: pointer;
   width: 36px; height: 36px;
@@ -1456,6 +1467,18 @@ body.loc-modal-open { overflow: hidden; }
   body.page-order .section:not(.section-page-head) { padding: 18px 0; }
   body.page-order .container { padding: 0 12px; }
   body.page-order .order-main { gap: 12px; }
+  body.page-order .order-flow-heading {
+    padding: 10px 12px;
+    border-radius: 12px;
+  }
+  body.page-order .order-flow-heading h2 {
+    font-size: 1rem;
+    margin-bottom: 2px;
+  }
+  body.page-order .order-flow-heading p {
+    font-size: .78rem;
+    line-height: 1.35;
+  }
 
   .step-card {
     padding: 14px 12px;
@@ -1644,7 +1667,7 @@ body.loc-modal-open { overflow: hidden; }
     border-radius: 14px !important;
   }
   body.page-order .order-summary-sticky { display: none; }
-  .summary-card h3 { font-size: 1rem; margin-bottom: 8px; }
+  .summary-card h2 { font-size: 1rem; margin-bottom: 8px; }
   .sum-line { padding: 4px 0; font-size: .9rem; }
   .sum-total { margin-top: 10px; padding-top: 10px; }
   .sum-total-amount { font-size: 1.2rem; }

@@ -32,6 +32,10 @@
     {% csrf_token %}
 
     <div class="order-main">
+      <div class="order-flow-heading">
+        <h2>Build your order</h2>
+        <p class="muted small">Choose a plan, set a delivery pin or pickup, then confirm on WhatsApp.</p>
+      </div>
 
       <div id="form-alert" class="msg msg-error" role="alert" hidden></div>
       {% if form.non_field_errors %}
@@ -243,7 +247,7 @@
     <!-- Sticky summary -->
     <aside class="order-summary-sticky" aria-live="polite">
       <div class="summary-card">
-        <h3>Order summary</h3>
+        <h2 class="summary-title">Order summary</h2>
 
         <div class="sum-line"><span class="muted">Method</span><span data-sum-method>Home delivery</span></div>
 
@@ -298,7 +302,7 @@
     <div class="loc-modal-backdrop" data-loc-close></div>
     <div class="loc-modal-panel" role="document">
       <header class="loc-modal-head">
-        <h3 id="loc-modal-title">Set delivery location</h3>
+        <h2 id="loc-modal-title">Set delivery location</h2>
         <button type="button" class="loc-modal-close" data-loc-close aria-label="Close location picker">×</button>
       </header>
 
