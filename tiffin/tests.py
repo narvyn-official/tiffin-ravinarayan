@@ -248,6 +248,7 @@ class SeededBusinessDataTests(TestCase):
 class PublicSeoTests(TestCase):
     def test_public_pages_render_complete_local_seo_metadata(self):
         response = self.client.get("/")
+        self.assertContains(response, '<html lang="en-IN">')
         self.assertContains(response, "<title>Tiffin Service in Metcity, Yakubpur &amp; Jhajjar</title>")
         self.assertContains(response, 'meta name="geo.region" content="IN-HR"')
         self.assertNotContains(response, 'hreflang="en-IN"')
