@@ -52,13 +52,10 @@
   <meta name="twitter:image:width" content="1100" />
   <meta name="twitter:image:height" content="619" />
 
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap">
-
   <link rel="stylesheet" href="{% asset 'css/styles.css' %}" />
-  <link rel="icon" type="image/png" sizes="any" href="{% asset 'img/logo.png' %}">
-  <link rel="apple-touch-icon" href="{% asset 'img/logo.png' %}">
+  <link rel="icon" type="image/png" sizes="180x180" href="{% asset 'img/logo-small.png' %}">
+  <link rel="apple-touch-icon" sizes="180x180" href="{% asset 'img/logo-small.png' %}">
+  {% block extra_head %}{% endblock %}
 
   {# Per-page Schema.org JSON-LD #}
   {% for blob in jsonld_blobs %}

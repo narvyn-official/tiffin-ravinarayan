@@ -1,12 +1,16 @@
 {% extends "tiffin/base.html" %}
-{% load static %}
+{% load static asset_tags %}
+
+{% block extra_head %}
+  <link rel="preload" as="image" href="{% asset 'img/hero.webp' %}" fetchpriority="high">
+{% endblock %}
 
 {% block content %}
 {% url 'order' as order_url %}
 {% url 'menu' as menu_url %}
 
 <!-- HERO (image as full background, content on left empty area) -->
-<section class="hero" style="background-image: url('{% static 'img/hero.webp' %}');">
+<section class="hero" style="background-image: url('{% asset 'img/hero.webp' %}');">
   <div class="container hero-inner">
     <div class="hero-text">
       <span class="eyebrow">🍃 Cooked fresh today</span>
