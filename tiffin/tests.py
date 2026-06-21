@@ -250,7 +250,7 @@ class PublicSeoTests(TestCase):
         response = self.client.get("/")
         self.assertContains(response, "<title>Tiffin Service in Metcity, Yakubpur &amp; Jhajjar</title>")
         self.assertContains(response, 'meta name="geo.region" content="IN-HR"')
-        self.assertContains(response, 'rel="alternate" hreflang="en-IN"')
+        self.assertNotContains(response, 'hreflang="en-IN"')
         self.assertContains(response, '"@type":"WebSite"')
         self.assertContains(response, '"keywords":"tiffin service, tiffin service near me')
         self.assertContains(response, "Tiffin service in Metcity")
